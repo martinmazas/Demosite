@@ -1,4 +1,5 @@
-import { APIRequestContext, Page } from '@playwright/test';
+import { APIRequestContext, Locator, Page } from '@playwright/test';
+type AriaRole = Parameters<Page['getByRole']>[0];
 
 export interface UserData {
   userId: string;
@@ -56,6 +57,10 @@ export class BasePage {
 
   async navigateTo(path: string): Promise<void> {
     await this.page.goto(path);
+  }
+
+  findByRole(role: AriaRole, name: string): Locator {
+    return this.page.getByRole(role, { name });
   }
 }
 

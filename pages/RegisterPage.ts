@@ -1,12 +1,16 @@
 import { BasePage } from '@/fixtures/BasePage';
+import { saveUser } from '@/functions/userStorage';
 
 export class RegisterPage extends BasePage {
+
     async register(firstName: string, lastName: string, username: string, password: string) {
         await this.navigateTo('/register');
-        await this.getByRole('textbox', { name: 'First Name' }).fill(firstName);
-        await this.getByRole('textbox', { name: 'Last Name' }).fill(lastName);
-        await this.getByRole('textbox', { name: 'UserName' }).fill(username);
-        await this.getByRole('textbox', { name: 'Password' }).fill(password);
-        await this.getByRole('button', { name: "Register" }).click();
+        await this.findByRole('textbox', 'First Name').fill(firstName);
+        await this.findByRole('textbox', 'Last Name').fill(lastName);
+        await this.findByRole('textbox', 'UserName').fill(username);
+        await this.findByRole('textbox', 'Password').fill(password);
+        await this.findByRole('button', "Register").click();
+
+        saveUser({ firstName, lastName, username, password });
     }
 }
