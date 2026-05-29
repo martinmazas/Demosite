@@ -7,6 +7,6 @@ test.describe('Login', () => {
         const username: string = process.env.TEST_USERNAME!;
         const passowrd: string = process.env.TEST_PASSWORD!;
         await loginPage.login(username, passowrd);
-        await expect(loginPage.getByRole('button', { name: 'Logout' })).toBeVisible();
+        await expect(loginPage.findByRole('button', 'Logout')).toBeVisible();
     })
 })
