@@ -39,12 +39,12 @@ test.describe('Auth api', () => {
         expect(profile.username).toBe(user.username);
     })
 
-    test.skip('Delete user > User was successfully deleted', async ({ api }) => {
+    test('Delete user > User was successfully deleted', async ({ api }) => {
         const user = getRandomUser(true);
         const { token } = await api.generateToken({ userName: user.username, password: user.password });
-        const deletedUser = await api.deleteUser({ userID: user.userID! }, token);
-        expect(deletedUser.code).toBe(0);
-        expect(deletedUser.message).toBeTruthy();
+        await api.deleteUser({ userID: user.userID! }, token);
+        const { token: newToken } = await api.generateToken({ userName: user.username, password: user.password });
+        await expect(api.getUserProfile({ userID: user.userID! }, newToken)).rejects.toThrow('User not found!');
         removeUser(user.userID!);
     })
 });

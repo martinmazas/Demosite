@@ -13,7 +13,7 @@ Expected Result: User is successfully registered and redirected to the profile p
 Actual Result: Error message "Please verify reCaptcha to register!" is displayed and registration is blocked.
 Notes: Issue is intermittent and does not occur on every attempt.
 
-[2026-06-01] BUG-002 | Severity: High | Status: Open
+[2026-06-01] BUG-002 | Severity: High | Status: Fixed
 Title: Delete user API test fails with 204 Unauthorized despite valid generateToken call
 Description: The delete user API test calls generateToken successfully (HTTP 200) then calls DELETE /Account/v1/User/{UUID} with the returned Bearer token, but receives HTTP 204 (Unauthorized) and the user is not deleted. The root cause is that the DemoQA GenerateToken endpoint always returns HTTP 200 even on failure — when a user no longer exists on the server the response body contains token: null. The post<T> method only validates the HTTP status code, so a 200 with token: null passes through silently and the subsequent DELETE is made with Authorization: Bearer null.
 Steps to Reproduce:
@@ -24,5 +24,7 @@ Steps to Reproduce:
 Expected Result: DELETE /Account/v1/User/{UUID} returns HTTP 200 with { "code": 0, "message": "User deleted successfully." }
 Actual Result: DELETE /Account/v1/User/{UUID} returns HTTP 204 — user is not deleted.
 Affected Files: fixtures/BaseAPI.ts (generateToken), .auth/user.json (stale users)
-Proposed Fix: Validate response.token after generateToken returns and throw if null, since HTTP 200 alone does not guarantee a valid token on this endpoint.
+Root Cause (Revised): The delete<T> method in BaseAPI.ts was checking for status 200 as success, but the DemoQA DELETE /Account/v1/User/{UUID} endpoint returns 204 (No Content) on successful deletion. The test was incorrectly treating a valid 204 success response as an unauthorized error.
+Resolution: Added expectedStatus parameter to the delete<T> method in fixtures/BaseAPI.ts (default 200). Updated deleteUser to pass expectedStatus: 204, matching the actual API contract. Deletion is confirmed by a follow-up getUserProfile call which rejects with "User not found!" after successful deletion.
+Fixed in: fixtures/BaseAPI.ts
 

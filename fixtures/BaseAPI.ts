@@ -55,9 +55,12 @@ export class AuthAPI extends BaseAPI {
   }
 
   async deleteUser(userId: UserId, token: string): Promise<DeleteUserResponse> {
-    return this.delete<DeleteUserResponse>(`Account/v1/User/${userId.userID}`, {
-      Authorization: `Bearer ${token}`,
-    });
+    return this.delete<DeleteUserResponse>(
+      `Account/v1/User/${userId.userID}`,
+      { Authorization: `Bearer ${token}` },
+      undefined,
+      204,
+    );
   }
 
   async getUserProfile(userId: UserId, token: string): Promise<UserProfileResponse> {
