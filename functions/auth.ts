@@ -25,6 +25,11 @@ export interface UserProfileResponse {
   books: Array<{ isbn: string }>;
 }
 
+export interface DeleteUserResponse {
+  code: number;
+  message: string;
+}
+
 export interface LoginResponse {
   token: string;
   expires: string;

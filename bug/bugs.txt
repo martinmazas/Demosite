@@ -13,3 +13,16 @@ Expected Result: User is successfully registered and redirected to the profile p
 Actual Result: Error message "Please verify reCaptcha to register!" is displayed and registration is blocked.
 Notes: Issue is intermittent and does not occur on every attempt.
 
+[2026-06-01] BUG-002 | Severity: High | Status: Open
+Title: Delete user API test fails with 204 Unauthorized despite valid generateToken call
+Description: The delete user API test calls generateToken successfully (HTTP 200) then calls DELETE /Account/v1/User/{UUID} with the returned Bearer token, but receives HTTP 204 (Unauthorized) and the user is not deleted. The root cause is that the DemoQA GenerateToken endpoint always returns HTTP 200 even on failure — when a user no longer exists on the server the response body contains token: null. The post<T> method only validates the HTTP status code, so a 200 with token: null passes through silently and the subsequent DELETE is made with Authorization: Bearer null.
+Steps to Reproduce:
+  1. Run: npx playwright test auth.api.test.ts --grep "Delete user"
+  2. getRandomUser(true) picks a user from user.json (skipping the first)
+  3. generateToken is called for that user — returns HTTP 200 with token: null (user no longer on server)
+  4. deleteUser is called with the null token — Authorization: Bearer null is sent
+Expected Result: DELETE /Account/v1/User/{UUID} returns HTTP 200 with { "code": 0, "message": "User deleted successfully." }
+Actual Result: DELETE /Account/v1/User/{UUID} returns HTTP 204 — user is not deleted.
+Affected Files: fixtures/BaseAPI.ts (generateToken), .auth/user.json (stale users)
+Proposed Fix: Validate response.token after generateToken returns and throw if null, since HTTP 200 alone does not guarantee a valid token on this endpoint.
+

@@ -1,5 +1,5 @@
 import { APIRequestContext } from '@playwright/test';
-import type { Credentials, RegisterResponse, LoginResponse, UserId, UserProfileResponse } from '@/functions/auth';
+import type { Credentials, RegisterResponse, LoginResponse, UserId, UserProfileResponse, DeleteUserResponse } from '@/functions/auth';
 
 class BaseAPI {
   private readonly request: APIRequestContext;
@@ -16,6 +16,16 @@ class BaseAPI {
     });
     if (!res.ok()) {
       throw new Error(`GET ${path} failed: ${res.status()} ${await res.text()}`);
+    }
+    return res.json() as Promise<T>;
+  }
+
+  protected async delete<T>(path: string, extraHeaders?: Record<string, string>): Promise<T> {
+    const res = await this.request.delete(`${this.baseUrl}${path}`, {
+      headers: { Accept: 'application/json', ...extraHeaders },
+    });
+    if (res.status() !== 200) {
+      throw new Error(`DELETE ${path} failed: ${res.status()} ${await res.text()}`);
     }
     return res.json() as Promise<T>;
   }
@@ -39,6 +49,12 @@ export class AuthAPI extends BaseAPI {
 
   async registerUser(userData: Credentials): Promise<RegisterResponse> {
     return this.post<RegisterResponse>('Account/v1/User', userData);
+  }
+
+  async deleteUser(userId: UserId, token: string): Promise<DeleteUserResponse> {
+    return this.delete<DeleteUserResponse>(`Account/v1/User/${userId.userID}`, {
+      Authorization: `Bearer ${token}`,
+    });
   }
 
   async getUserProfile(userId: UserId, token: string): Promise<UserProfileResponse> {
