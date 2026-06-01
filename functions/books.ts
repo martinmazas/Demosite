@@ -16,6 +16,15 @@ export interface BooksResponse {
   books: Book[];
 }
 
+export interface AddBooksPayload {
+  userId: string;
+  collectionOfIsbns: { isbn: string }[];
+}
+
+export interface AddBooksResponse {
+  books: { isbn: string }[];
+}
+
 function isPage(context: APIRequestContext | Page): context is Page {
   return 'goto' in context;
 }

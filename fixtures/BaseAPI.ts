@@ -1,6 +1,6 @@
 import { APIRequestContext } from '@playwright/test';
 import type { Credentials, RegisterResponse, LoginResponse, UserId, UserProfileResponse, DeleteUserResponse } from '@/functions/auth';
-import type { BooksResponse } from '@/functions/books';
+import type { BooksResponse, AddBooksResponse } from '@/functions/books';
 
 class BaseAPI {
   private readonly request: APIRequestContext;
@@ -31,9 +31,9 @@ class BaseAPI {
     return res.json() as Promise<T>;
   }
 
-  protected async post<T>(path: string, data?: unknown): Promise<T> {
+  protected async post<T>(path: string, data?: unknown, extraHeaders?: Record<string, string>): Promise<T> {
     const res = await this.request.post(`${this.baseUrl}${path}`, {
-      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...extraHeaders },
       data,
     });
     if (!res.ok()) {
@@ -66,5 +66,13 @@ export class AuthAPI extends BaseAPI {
 
   async getBooks(): Promise<BooksResponse> {
     return this.get<BooksResponse>('BookStore/v1/Books');
+  }
+
+  async addBooksToCollection(userId: string, isbn: string, token: string): Promise<AddBooksResponse> {
+    return this.post<AddBooksResponse>(
+      'BookStore/v1/Books',
+      { userId, collectionOfIsbns: [{ isbn }] },
+      { Authorization: `Bearer ${token}` },
+    );
   }
 }
