@@ -1,0 +1,15 @@
+# Bug Report Log
+# Format: [Date] - [Bug Description]
+# =========================================
+
+[2026-06-01] BUG-001 | Severity: Medium | Status: Open
+Title: reCAPTCHA validation failure on user registration despite completed form
+Description: During the user registration flow, an intermittent issue occurs where all required fields are correctly filled and the Register button is clicked, yet the application displays the error message "Please verify reCaptcha to register!" and prevents the user from completing registration. The reCAPTCHA widget appears to fail silently or its completion state is not being recognized by the form submission handler.
+Steps to Reproduce:
+  1. Navigate to the registration page.
+  2. Fill in all required fields with valid data.
+  3. Click the "Register" button.
+Expected Result: User is successfully registered and redirected to the profile page.
+Actual Result: Error message "Please verify reCaptcha to register!" is displayed and registration is blocked.
+Notes: Issue is intermittent and does not occur on every attempt.
+

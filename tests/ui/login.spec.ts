@@ -1,4 +1,5 @@
 import { expect, test } from '@/fixtures';
+import { UserData } from '@/fixtures/BasePage';
 import { faker } from '@faker-js/faker';
 
 test.describe('Login', () => {
@@ -12,10 +13,14 @@ test.describe('Login', () => {
     })
 
     test('Register > New user is created', async ({ registerPage }) => {
-        registerPage.on('dialog', async dialog => {
-            expect(dialog.message()).toBe('User Registered Successfully');
-            await dialog.accept();
-        })
+        const dialogPromise = new Promise<void>(resolve => {
+            registerPage.on('dialog', async dialog => {
+                expect(dialog.message()).toBe('User Registered Successfully.');
+                await dialog.accept();
+                resolve();
+            });
+        });
+
         const firstName = faker.person.firstName();
         const lastName = faker.person.lastName();
         const username = faker.internet.username({ firstName, lastName });
@@ -26,5 +31,6 @@ test.describe('Login', () => {
             + faker.string.fromCharacters('abcdefghijklmnopqrstuvwxyz', 1);
 
         await registerPage.register(firstName, lastName, username, password);
+        await dialogPromise;
     })
 })
