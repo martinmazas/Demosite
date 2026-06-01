@@ -1,5 +1,6 @@
 import { APIRequestContext } from '@playwright/test';
 import type { Credentials, RegisterResponse, LoginResponse, UserId, UserProfileResponse, DeleteUserResponse } from '@/functions/auth';
+import type { BooksResponse } from '@/functions/books';
 
 class BaseAPI {
   private readonly request: APIRequestContext;
@@ -61,5 +62,9 @@ export class AuthAPI extends BaseAPI {
     return this.get<UserProfileResponse>(`Account/v1/User/${userId.userID}`, {
       Authorization: `Bearer ${token}`,
     });
+  }
+
+  async getBooks(): Promise<BooksResponse> {
+    return this.get<BooksResponse>('BookStore/v1/Books');
   }
 }
