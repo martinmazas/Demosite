@@ -1,5 +1,5 @@
 import { APIRequestContext } from '@playwright/test';
-import type { Credentials, RegisterResponse, LoginResponse } from '@/functions/auth';
+import type { Credentials, RegisterResponse, LoginResponse, UserId, UserProfileResponse } from '@/functions/auth';
 
 class BaseAPI {
   private readonly request: APIRequestContext;
@@ -10,9 +10,9 @@ class BaseAPI {
     this.baseUrl = `${(process.env.API_BASE_URL ?? '').replace(/\/$/, '')}/`;
   }
 
-  protected async get<T>(path: string): Promise<T> {
+  protected async get<T>(path: string, extraHeaders?: Record<string, string>): Promise<T> {
     const res = await this.request.get(`${this.baseUrl}${path}`, {
-      headers: { Accept: 'application/json' },
+      headers: { Accept: 'application/json', ...extraHeaders },
     });
     if (!res.ok()) {
       throw new Error(`GET ${path} failed: ${res.status()} ${await res.text()}`);
@@ -39,5 +39,11 @@ export class AuthAPI extends BaseAPI {
 
   async registerUser(userData: Credentials): Promise<RegisterResponse> {
     return this.post<RegisterResponse>('Account/v1/User', userData);
+  }
+
+  async getUserProfile(userId: UserId, token: string): Promise<UserProfileResponse> {
+    return this.get<UserProfileResponse>(`Account/v1/User/${userId.userID}`, {
+      Authorization: `Bearer ${token}`,
+    });
   }
 }

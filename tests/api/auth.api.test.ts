@@ -1,7 +1,7 @@
 import { test, expect } from '@/fixtures/index';
 import type { Credentials } from '@/functions/auth';
 import { generateUserData } from '@/functions/testData';
-import { saveUser } from '@/functions/userStorage';
+import { saveUser, getRandomUser } from '@/functions/userStorage';
 
 test.describe('Auth api', () => {
     test('Register new user > New user successfully created', async ({ api }) => {
@@ -14,7 +14,7 @@ test.describe('Auth api', () => {
         expect(response.userID).toBeTruthy();
         expect(response.username).toBe(username);
         expect(response.books).toHaveLength(0);
-        saveUser({ firstName, lastName, username, password });
+        saveUser({ firstName, lastName, username, password, userID: response.userID });
     })
 
     test('Generate token > New token was successfully generated', async ({ api }) => {
@@ -30,4 +30,12 @@ test.describe('Auth api', () => {
         expect(response.token).toBeTruthy();
         expect(response.expires).toBeTruthy();
     });
+
+    test('User profile > Get user profile', async ({ api }) => {
+        const user = getRandomUser();
+        const { token } = await api.generateToken({ userName: user.username, password: user.password });
+        const profile = await api.getUserProfile({ userID: user.userID! }, token);
+        expect(profile.userId).toBe(user.userID);
+        expect(profile.username).toBe(user.username);
+    })
 });

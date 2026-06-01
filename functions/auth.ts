@@ -10,8 +10,17 @@ export interface RegisterPayload extends Credentials {
   lastName: string;
 }
 
-export interface RegisterResponse {
+export interface UserId {
   userID: string;
+}
+
+export interface RegisterResponse extends UserId {
+  username: string;
+  books: Array<{ isbn: string }>;
+}
+
+export interface UserProfileResponse {
+  userId: string;
   username: string;
   books: Array<{ isbn: string }>;
 }
@@ -49,4 +58,14 @@ export async function generateToken(
   const response = await api.post('/Account/v1/GenerateToken', { data: credentials });
   expect(response.status()).toBe(200);
   return response.json() as Promise<LoginResponse>;
+}
+
+export async function getUserProfile(
+  context: APIRequestContext | Page,
+  userID: UserId
+): Promise<RegisterResponse> {
+  const api = isPage(context) ? context.request : context;
+  const response = await api.get('Account/v1/user/', {data: userID});
+  expect(response.status()).toBe(200);
+  return response.json() as Promise<RegisterResponse>
 }

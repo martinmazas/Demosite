@@ -3,7 +3,7 @@ import { generateUserData } from '@/functions/testData';
 import { saveUser } from '@/functions/userStorage';
 
 test.describe('Login', () => {
-    test('Login > Valid credentials > Profile page is seen', async ({
+    test('Valid credentials > Profile page is seen', async ({
         loginPage
     }) => {
         const username: string = process.env.TEST_USERNAME!;
