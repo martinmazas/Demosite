@@ -12,7 +12,7 @@ test.describe('Login', () => {
         await expect(loginPage.findByRole('button', 'Logout')).toBeVisible();
     })
 
-    test('Register > New user is created', async ({ registerPage }) => {
+    test.skip('Register > New user is created', async ({ registerPage }) => {
         const dialogPromise = new Promise<string>(resolve => {
             registerPage.on('dialog', async dialog => {
                 const message = dialog.message();

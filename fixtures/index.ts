@@ -1,7 +1,7 @@
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { test as base } from '@playwright/test';
-import { AuthAPI } from './AuthAPI';
+import { AuthAPI } from './BaseAPI';
 
 type MyFixtures = {
     loginPage: LoginPage;
