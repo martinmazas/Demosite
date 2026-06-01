@@ -1,6 +1,6 @@
 import { APIRequestContext } from '@playwright/test';
 import type { Credentials, RegisterResponse, LoginResponse, UserId, UserProfileResponse, DeleteUserResponse } from '@/functions/auth';
-import type { BooksResponse, AddBooksResponse } from '@/functions/books';
+import type { BooksResponse, AddBooksResponse, RemoveBookResponse } from '@/functions/books';
 
 class BaseAPI {
   private readonly request: APIRequestContext;
@@ -21,14 +21,16 @@ class BaseAPI {
     return res.json() as Promise<T>;
   }
 
-  protected async delete<T>(path: string, extraHeaders?: Record<string, string>): Promise<T> {
+  protected async delete<T>(path: string, extraHeaders?: Record<string, string>, data?: unknown, expectedStatus = 200): Promise<T> {
     const res = await this.request.delete(`${this.baseUrl}${path}`, {
       headers: { Accept: 'application/json', ...extraHeaders },
+      data,
     });
-    if (res.status() !== 200) {
+    if (res.status() !== expectedStatus) {
       throw new Error(`DELETE ${path} failed: ${res.status()} ${await res.text()}`);
     }
-    return res.json() as Promise<T>;
+    const text = await res.text();
+    return (text ? JSON.parse(text) : {}) as T;
   }
 
   protected async post<T>(path: string, data?: unknown, extraHeaders?: Record<string, string>): Promise<T> {
@@ -73,6 +75,15 @@ export class AuthAPI extends BaseAPI {
       'BookStore/v1/Books',
       { userId, collectionOfIsbns: [{ isbn }] },
       { Authorization: `Bearer ${token}` },
+    );
+  }
+
+  async removeBookFromCollection(userId: string, isbn: string, token: string): Promise<RemoveBookResponse> {
+    return this.delete<RemoveBookResponse>(
+      'BookStore/v1/Book',
+      { Authorization: `Bearer ${token}` },
+      { isbn, userId },
+      204
     );
   }
 }

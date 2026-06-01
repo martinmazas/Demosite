@@ -28,4 +28,18 @@ test.describe('Books api', () => {
         expect(response.books).toBeDefined();
         expect(response.books.some(b => b.isbn === randomBook.isbn)).toBe(true);
     })
+
+    test('Remove book from collection > Book is removed from user collection', async ({ api }) => {
+        const { books } = await api.getBooks();
+        const randomBook = books[Math.floor(Math.random() * books.length)];
+
+        const user = getRandomUser();
+        const { token } = await api.generateToken({ userName: user.username, password: user.password });
+
+        await api.addBooksToCollection(user.userID!, randomBook.isbn, token);
+        await api.removeBookFromCollection(user.userID!, randomBook.isbn, token);
+
+        const profile = await api.getUserProfile({ userID: user.userID! }, token);
+        expect(profile.books.some(b => b.isbn === randomBook.isbn)).toBe(false);
+    })
 })

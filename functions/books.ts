@@ -25,6 +25,12 @@ export interface AddBooksResponse {
   books: { isbn: string }[];
 }
 
+export interface RemoveBookResponse {
+  userId: string;
+  isbn: string;
+  message: string;
+}
+
 function isPage(context: APIRequestContext | Page): context is Page {
   return 'goto' in context;
 }
