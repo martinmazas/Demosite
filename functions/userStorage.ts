@@ -9,11 +9,10 @@ interface UserRecord {
     userID?: string;
 }
 
-export function getRandomUser(skipFirst = false): UserRecord {
+export function getRandomUser(): UserRecord {
     const filePath = path.join(path.resolve('.auth'), 'user.json');
     const users: UserRecord[] = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-    const withId = users.filter(u => u.userID);
-    const pool = (withId.length > 0 ? withId : users).slice(skipFirst ? 1 : 0);
+    const pool = users.filter(u => u.userID);
     return pool[Math.floor(Math.random() * pool.length)];
 }
 

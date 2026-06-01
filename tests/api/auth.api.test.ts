@@ -40,7 +40,7 @@ test.describe('Auth api', () => {
     })
 
     test('Delete user > User was successfully deleted', async ({ api }) => {
-        const user = getRandomUser(true);
+        const user = getRandomUser();
         const { token } = await api.generateToken({ userName: user.username, password: user.password });
         await api.deleteUser({ userID: user.userID! }, token);
         const { token: newToken } = await api.generateToken({ userName: user.username, password: user.password });
