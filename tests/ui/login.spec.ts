@@ -1,6 +1,6 @@
 import { expect, test } from '@/fixtures';
+import { generateUserData } from '@/functions/testData';
 import { saveUser } from '@/functions/userStorage';
-import { faker } from '@faker-js/faker';
 
 test.describe('Login', () => {
     test('Login > Valid credentials > Profile page is seen', async ({
@@ -21,14 +21,7 @@ test.describe('Login', () => {
             });
         });
 
-        const firstName = faker.person.firstName();
-        const lastName = faker.person.lastName();
-        const username = faker.internet.username({ firstName, lastName });
-        const password = faker.internet.password({ length: 4, memorable: false, pattern: /[a-z]/ })
-            + faker.string.fromCharacters('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 1)
-            + faker.string.fromCharacters('0123456789', 1)
-            + faker.string.fromCharacters('!@#$%^&*', 1)
-            + faker.string.fromCharacters('abcdefghijklmnopqrstuvwxyz', 1);
+        const { firstName, lastName, username, password } = generateUserData();
 
         await registerPage.register(firstName, lastName, username, password);
         const dialogMessage = await dialogPromise;

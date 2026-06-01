@@ -1,7 +1,7 @@
 import { APIRequestContext, Page, expect } from '@playwright/test';
 
 export interface Credentials {
-  username: string;
+  userName: string;
   password: string;
 }
 
