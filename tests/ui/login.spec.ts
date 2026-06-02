@@ -1,6 +1,7 @@
 import { expect, test } from '@/fixtures';
 import { generateUserData } from '@/functions/testData';
 import { saveUser } from '@/functions/userStorage';
+import { LoginPage } from '@/pages/LoginPage';
 
 test.describe('Login', () => {
     test('Valid credentials > Profile page is seen', async ({
@@ -10,6 +11,11 @@ test.describe('Login', () => {
         const passowrd: string = process.env.TEST_PASSWORD!;
         await loginPage.login(username, passowrd);
         await expect(loginPage.findByRole('button', 'Logout')).toBeVisible();
+    });
+
+    test('Wrong credentials > Unsuccessful login', async({loginPage}) => {
+        await loginPage.login('wrong_username', 'wrong_password');
+        await loginPage.expectError();
     })
 
     test.skip('Register > New user is created', async ({ registerPage }) => {
