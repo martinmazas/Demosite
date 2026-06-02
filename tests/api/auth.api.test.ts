@@ -1,57 +1,74 @@
 import { test, expect } from '@/fixtures/index';
-import type { Credentials } from '@/functions/types';
 import { generateUserData } from '@/functions/testData';
-import { saveUser, getLastUser, removeUser } from '@/functions/userStorage';
 
-test.describe('Auth api', () => {
-    test('Register new user > New user successfully created', async ({ api }) => {
-        // Generate user data, register the user via API and check the response is accurate
-        const { firstName, lastName, username, password } = generateUserData();
-        const userData: Credentials = {
-            userName: username,
-            password
+test.describe('Auth', () => {
+    test(
+        'Registration > New user created successfully',
+        { annotation: { type: 'id', description: 'TC-A001' } },
+        async ({ api }) => {
+            const { username, password } = generateUserData();
+            const response = await api.registerUser({ userName: username, password });
+            const { token } = await api.generateToken({ userName: username, password });
+
+            try {
+                expect(response.userID).toBeTruthy();
+                expect(response.username).toBe(username);
+                expect(response.books).toHaveLength(0);
+            } finally {
+                await api.deleteUser({ userID: response.userID }, token);
+            }
         }
-        const response = await api.registerUser(userData);
-        expect(response.userID).toBeTruthy();
-        expect(response.username).toBe(username);
-        expect(response.books).toHaveLength(0);
-        saveUser({ firstName, lastName, username, password, userID: response.userID });
-    })
+    );
 
-    test('Generate token > New token was successfully generated', async ({ api }) => {
-        // Generate a new token for a specific user
-        const credentials: Credentials = {
-            userName: process.env.TEST_USERNAME!,
-            password: process.env.TEST_PASSWORD!,
-        };
+    test(
+        'Token > Generated successfully for valid credentials',
+        { annotation: { type: 'id', description: 'TC-A002' } },
+        async ({ api }) => {
+            const { username, password } = generateUserData();
+            const { userID } = await api.registerUser({ userName: username, password });
+            const response = await api.generateToken({ userName: username, password });
 
-        const response = await api.generateToken(credentials);
-
-        expect(response.status).toBe('Success');
-        expect(response.result).toBe('User authorized successfully.');
-        expect(response.token).toBeTruthy();
-        expect(response.expires).toBeTruthy();
-    });
-
-    test('User profile > Get user profile', async ({ api }) => {
-        const userId: string = process.env.TEST_USERID!;
-        const credentials: Credentials = {
-            userName: process.env.TEST_USERNAME!,
-            password: process.env.TEST_PASSWORD!
+            try {
+                expect(response.status).toBe('Success');
+                expect(response.result).toBe('User authorized successfully.');
+                expect(response.token).toBeTruthy();
+                expect(response.expires).toBeTruthy();
+            } finally {
+                await api.deleteUser({ userID }, response.token);
+            }
         }
+    );
 
-        const { token } = await api.generateToken(credentials);
-        const profile = await api.getUserProfile({ userID: userId }, token);
-        expect(profile.userId).toBe(userId);
-        expect(profile.username).toBe(credentials.userName);
-    })
+    test(
+        'Profile > Returns correct user data',
+        { annotation: { type: 'id', description: 'TC-A003' } },
+        async ({ api }) => {
+            const { username, password } = generateUserData();
+            const { userID } = await api.registerUser({ userName: username, password });
+            const { token } = await api.generateToken({ userName: username, password });
 
-    test('Delete user > User was successfully deleted', async ({ api }) => {
-        const user = getLastUser();
-        const { token } = await api.generateToken({ userName: user.username, password: user.password });
-        await api.deleteUser({ userID: user.userID! }, token);
-        const { token: newToken } = await api.generateToken({ userName: user.username, password: user.password });
-        await expect(api.getUserProfile({ userID: user.userID! }, newToken)).rejects.toThrow('User not found!');
-        removeUser(user.userID!);
-    })
+            try {
+                const profile = await api.getUserProfile({ userID }, token);
+                expect(profile.userId).toBe(userID);
+                expect(profile.username).toBe(username);
+            } finally {
+                await api.deleteUser({ userID }, token);
+            }
+        }
+    );
+
+    test(
+        'Account deletion > User deleted and no longer accessible',
+        { annotation: { type: 'id', description: 'TC-A004' } },
+        async ({ api }) => {
+            const { username, password } = generateUserData();
+            const { userID } = await api.registerUser({ userName: username, password });
+            const { token } = await api.generateToken({ userName: username, password });
+
+            await api.deleteUser({ userID }, token);
+
+            const { token: freshToken } = await api.generateToken({ userName: username, password });
+            await expect(api.getUserProfile({ userID }, freshToken)).rejects.toThrow('User not found!');
+        }
+    );
 });
