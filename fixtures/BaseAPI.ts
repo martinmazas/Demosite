@@ -1,6 +1,6 @@
 import { APIRequestContext } from '@playwright/test';
 import type { Credentials, RegisterResponse, LoginResponse, UserId, UserProfileResponse, DeleteUserResponse } from '@/functions/auth';
-import type { BooksResponse, AddBooksResponse, RemoveBookResponse } from '@/functions/books';
+import type { BooksResponse, AddBooksResponse, RemoveBookResponse, Book } from '@/functions/books';
 
 class BaseAPI {
   private readonly request: APIRequestContext;
@@ -69,8 +69,12 @@ export class AuthAPI extends BaseAPI {
     });
   }
 
-  async getBooks(): Promise<BooksResponse> {
+  async listBooks(): Promise<BooksResponse> {
     return this.get<BooksResponse>('BookStore/v1/Books');
+  }
+
+  async getBook(isbn: string): Promise<Book> {
+    return this.get<Book>(`BookStore/v1/Book?ISBN=${isbn}`);
   }
 
   async addBooksToCollection(userId: string, isbn: string, token: string): Promise<AddBooksResponse> {

@@ -3,7 +3,7 @@ import { getLastUser } from '@/functions/userStorage';
 
 test.describe('Books api', () => {
     test('Get list of books', async ({ api }) => {
-        const { books } = await api.getBooks();
+        const { books } = await api.listBooks();
         expect(books).toBeDefined();
         expect(books.length).toBeGreaterThan(0);
         const book = books[0];
@@ -17,8 +17,15 @@ test.describe('Books api', () => {
         expect(book.website).toBeTruthy();
     });
 
+    test('Get a book', async ({ api }) => {
+        const isbn: string = '9781449325862';
+        const book = await api.getBook(isbn);
+        expect(book).toBeDefined();
+        expect(book.isbn).toBe(isbn);
+    })
+
     test('Add book to user collection > Check book is in user collection', async ({ api }) => {
-        const { books } = await api.getBooks();
+        const { books } = await api.listBooks();
         const randomBook = books[Math.floor(Math.random() * books.length)];
 
         const user = getLastUser();
@@ -30,7 +37,7 @@ test.describe('Books api', () => {
     })
 
     test('Remove book from collection > Book is removed from user collection', async ({ api }) => {
-        const { books } = await api.getBooks();
+        const { books } = await api.listBooks();
         const randomBook = books[Math.floor(Math.random() * books.length)];
 
         const user = getLastUser();
