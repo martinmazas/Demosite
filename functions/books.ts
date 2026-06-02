@@ -1,35 +1,6 @@
 import { APIRequestContext, Page, expect } from '@playwright/test';
-
-export interface Book {
-  isbn: string;
-  title: string;
-  subTitle: string;
-  author: string;
-  publish_date: string;
-  publisher: string;
-  pages: number;
-  description: string;
-  website: string;
-}
-
-export interface BooksResponse {
-  books: Book[];
-}
-
-export interface AddBooksPayload {
-  userId: string;
-  collectionOfIsbns: { isbn: string }[];
-}
-
-export interface AddBooksResponse {
-  books: { isbn: string }[];
-}
-
-export interface RemoveBookResponse {
-  userId: string;
-  isbn: string;
-  message: string;
-}
+import type { BooksResponse } from './types';
+export type { Book, BooksResponse, AddBooksPayload, AddBooksResponse, RemoveBookResponse } from './types';
 
 function isPage(context: APIRequestContext | Page): context is Page {
   return 'goto' in context;

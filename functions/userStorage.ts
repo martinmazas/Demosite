@@ -1,13 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-
-interface UserRecord {
-    firstName: string;
-    lastName: string;
-    username: string;
-    password: string;
-    userID?: string;
-}
+import type { UserRecord } from './types';
 
 export function getLastUser(): UserRecord {
     const filePath = path.join(path.resolve('.auth'), 'user.json');

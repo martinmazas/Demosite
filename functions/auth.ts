@@ -1,41 +1,20 @@
 import { APIRequestContext, Page, expect } from '@playwright/test';
-
-export interface Credentials {
-  userName: string;
-  password: string;
-}
-
-export interface RegisterPayload extends Credentials {
-  firstName: string;
-  lastName: string;
-}
-
-export interface UserId {
-  userID: string;
-}
-
-export interface RegisterResponse extends UserId {
-  username: string;
-  books: Array<{ isbn: string }>;
-}
-
-export interface UserProfileResponse {
-  userId: string;
-  username: string;
-  books: Array<{ isbn: string }>;
-}
-
-export interface DeleteUserResponse {
-  code: number;
-  message: string;
-}
-
-export interface LoginResponse {
-  token: string;
-  expires: string;
-  status: string;
-  result: string;
-}
+import type {
+  Credentials,
+  RegisterPayload,
+  UserId,
+  RegisterResponse,
+  LoginResponse,
+} from './types';
+export type {
+  Credentials,
+  RegisterPayload,
+  UserId,
+  RegisterResponse,
+  UserProfileResponse,
+  DeleteUserResponse,
+  LoginResponse,
+} from './types';
 
 function isPage(context: APIRequestContext | Page): context is Page {
   return 'goto' in context;

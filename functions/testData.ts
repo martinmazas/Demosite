@@ -1,17 +1,5 @@
 import { faker } from '@faker-js/faker';
-
-interface UserData extends Username, Password {
-    firstName: string;
-    lastName: string;
-}
-
-interface Username {
-    username: string;
-}
-
-interface Password {
-    password: string;
-}
+import type { UserData, Username, Password } from './types';
 
 export function uniqueUsername(): Username {
     const username: string = faker.internet.username();
