@@ -1,5 +1,5 @@
 import { APIRequestContext } from '@playwright/test';
-import type { Credentials, RegisterResponse, LoginResponse, UserId, UserProfileResponse, DeleteUserResponse } from '@/functions/auth';
+import type { Credentials, RegisterResponse, LoginResponse, UserId, UserProfileResponse, DeleteResponse } from '@/functions/types';
 import type { BooksResponse, AddBooksResponse, RemoveBookResponse, Book } from '@/functions/books';
 
 class BaseAPI {
@@ -26,6 +26,7 @@ class BaseAPI {
       headers: { Accept: 'application/json', ...extraHeaders },
       data,
     });
+
     if (res.status() !== expectedStatus) {
       throw new Error(`DELETE ${path} failed: ${res.status()} ${await res.text()}`);
     }
@@ -54,8 +55,8 @@ export class AuthAPI extends BaseAPI {
     return this.post<RegisterResponse>('Account/v1/User', userData);
   }
 
-  async deleteUser(userId: UserId, token: string): Promise<DeleteUserResponse> {
-    return this.delete<DeleteUserResponse>(
+  async deleteUser(userId: UserId, token: string): Promise<DeleteResponse> {
+    return this.delete<DeleteResponse>(
       `Account/v1/User/${userId.userID}`,
       { Authorization: `Bearer ${token}` },
       undefined,
@@ -77,7 +78,16 @@ export class AuthAPI extends BaseAPI {
     return this.get<Book>(`BookStore/v1/Book?ISBN=${isbn}`);
   }
 
-  async addBooksToCollection(userId: string, isbn: string, token: string): Promise<AddBooksResponse> {
+  async clearCollection(userId: string, token: string): Promise<DeleteResponse> {
+    return this.delete<DeleteResponse>(
+      `BookStore/v1/Books?UserId=${userId}`,
+      { Authorization: `Bearer ${token}` },
+      undefined,
+      204
+    )
+  }
+
+  async addToCollection(userId: string, isbn: string, token: string): Promise<AddBooksResponse> {
     return this.post<AddBooksResponse>(
       'BookStore/v1/Books',
       { userId, collectionOfIsbns: [{ isbn }] },
@@ -85,7 +95,7 @@ export class AuthAPI extends BaseAPI {
     );
   }
 
-  async removeBookFromCollection(userId: string, isbn: string, token: string): Promise<RemoveBookResponse> {
+  async removeFromCollection(userId: string, isbn: string, token: string): Promise<RemoveBookResponse> {
     return this.delete<RemoveBookResponse>(
       'BookStore/v1/Book',
       { Authorization: `Bearer ${token}` },

@@ -6,15 +6,6 @@ import type {
   RegisterResponse,
   LoginResponse,
 } from './types';
-export type {
-  Credentials,
-  RegisterPayload,
-  UserId,
-  RegisterResponse,
-  UserProfileResponse,
-  DeleteUserResponse,
-  LoginResponse,
-} from './types';
 
 function isPage(context: APIRequestContext | Page): context is Page {
   return 'goto' in context;
@@ -49,7 +40,7 @@ export async function getUserProfile(
   userID: UserId
 ): Promise<RegisterResponse> {
   const api = isPage(context) ? context.request : context;
-  const response = await api.get('Account/v1/user/', {data: userID});
+  const response = await api.get('Account/v1/user/', { data: userID });
   expect(response.status()).toBe(200);
   return response.json() as Promise<RegisterResponse>
 }

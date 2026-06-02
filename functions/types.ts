@@ -32,7 +32,7 @@ export interface UserProfileResponse {
   books: Array<{ isbn: string }>;
 }
 
-export interface DeleteUserResponse {
+export interface DeleteResponse {
   code: number;
   message: string;
 }

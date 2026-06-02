@@ -1,5 +1,5 @@
 import { test, expect } from '@/fixtures/index';
-import type { Credentials } from '@/functions/auth';
+import type { Credentials } from '@/functions/types';
 import { generateUserData } from '@/functions/testData';
 import { saveUser, getLastUser, removeUser } from '@/functions/userStorage';
 
