@@ -2,8 +2,7 @@ import { BasePage } from '../fixtures/BasePage';
 import { Book, BooksResponse } from '../functions/types';
 
 export class BookPage extends BasePage {
-    async getBooks(): Promise<BooksResponse> {
-        await this.navigateTo('/books');
+    private async readTableRows(): Promise<Book[]> {
         const rows = this.page.locator('table tbody tr');
         await rows.first().waitFor();
 
@@ -29,6 +28,19 @@ export class BookPage extends BasePage {
             });
         }
 
-        return { books };
+        return books;
+    }
+
+    async getBooks(): Promise<BooksResponse> {
+        await this.navigateTo('/books');
+        return { books: await this.readTableRows() };
+    }
+
+    async searchBooks(query: string): Promise<BooksResponse> {
+        await this.navigateTo('/books');
+        const searchBox = this.findByRole('textbox', 'Type to search');
+        await searchBox.fill(query);
+        await searchBox.press('Enter');
+        return { books: await this.readTableRows() };
     }
 }
