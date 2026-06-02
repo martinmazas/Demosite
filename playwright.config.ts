@@ -29,25 +29,25 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         // storageState: AUTH_FILE,
       },
-      dependencies: ['setup'],
+      // dependencies: ['setup'],
     },
 
-    {
-      name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-        // storageState: AUTH_FILE,
-      },
-      dependencies: ['setup'],
-    },
+    // {
+    //   name: 'firefox',
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //     // storageState: AUTH_FILE,
+    //   },
+    //   dependencies: ['setup'],
+    // },
 
-    {
-      name: 'webkit',
-      use: {
-        ...devices['Desktop Safari'],
-        // storageState: AUTH_FILE,
-      },
-      dependencies: ['setup'],
-    },
+    // {
+    //   name: 'webkit',
+    //   use: {
+    //     ...devices['Desktop Safari'],
+    //     // storageState: AUTH_FILE,
+    //   },
+    //   dependencies: ['setup'],
+    // },
   ],
 });

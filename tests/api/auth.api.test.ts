@@ -1,10 +1,11 @@
 import { test, expect } from '@/fixtures/index';
 import type { Credentials } from '@/functions/auth';
 import { generateUserData } from '@/functions/testData';
-import { saveUser, getRandomUser, removeUser } from '@/functions/userStorage';
+import { saveUser, getLastUser, removeUser } from '@/functions/userStorage';
 
 test.describe('Auth api', () => {
     test('Register new user > New user successfully created', async ({ api }) => {
+        // Generate user data, register the user via API and check the response is accurate
         const { firstName, lastName, username, password } = generateUserData();
         const userData: Credentials = {
             userName: username,
@@ -18,6 +19,7 @@ test.describe('Auth api', () => {
     })
 
     test('Generate token > New token was successfully generated', async ({ api }) => {
+        // Generate a new token for a specific user
         const credentials: Credentials = {
             userName: process.env.TEST_USERNAME!,
             password: process.env.TEST_PASSWORD!,
@@ -32,15 +34,20 @@ test.describe('Auth api', () => {
     });
 
     test('User profile > Get user profile', async ({ api }) => {
-        const user = getRandomUser();
-        const { token } = await api.generateToken({ userName: user.username, password: user.password });
-        const profile = await api.getUserProfile({ userID: user.userID! }, token);
-        expect(profile.userId).toBe(user.userID);
-        expect(profile.username).toBe(user.username);
+        const userId: string = process.env.TEST_USERID!;
+        const credentials: Credentials = {
+            userName: process.env.TEST_USERNAME!,
+            password: process.env.TEST_PASSWORD!
+        }
+
+        const { token } = await api.generateToken(credentials);
+        const profile = await api.getUserProfile({ userID: userId }, token);
+        expect(profile.userId).toBe(userId);
+        expect(profile.username).toBe(credentials.userName);
     })
 
     test('Delete user > User was successfully deleted', async ({ api }) => {
-        const user = getRandomUser();
+        const user = getLastUser();
         const { token } = await api.generateToken({ userName: user.username, password: user.password });
         await api.deleteUser({ userID: user.userID! }, token);
         const { token: newToken } = await api.generateToken({ userName: user.username, password: user.password });

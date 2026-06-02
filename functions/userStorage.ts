@@ -9,11 +9,12 @@ interface UserRecord {
     userID?: string;
 }
 
-export function getRandomUser(): UserRecord {
+export function getLastUser(): UserRecord {
     const filePath = path.join(path.resolve('.auth'), 'user.json');
     const users: UserRecord[] = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
     const pool = users.filter(u => u.userID);
-    return pool[Math.floor(Math.random() * pool.length)];
+    if (pool.length === 0) throw new Error('No users found in user.json');
+    return pool[pool.length - 1];
 }
 
 export function removeUser(userID: string): void {

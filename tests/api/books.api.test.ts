@@ -1,5 +1,5 @@
 import { test, expect } from '@/fixtures/index';
-import { getRandomUser } from '@/functions/userStorage';
+import { getLastUser } from '@/functions/userStorage';
 
 test.describe('Books api', () => {
     test('Get list of books', async ({ api }) => {
@@ -21,7 +21,7 @@ test.describe('Books api', () => {
         const { books } = await api.getBooks();
         const randomBook = books[Math.floor(Math.random() * books.length)];
 
-        const user = getRandomUser();
+        const user = getLastUser();
         const { token } = await api.generateToken({ userName: user.username, password: user.password });
 
         const response = await api.addBooksToCollection(user.userID!, randomBook.isbn, token);
@@ -33,7 +33,7 @@ test.describe('Books api', () => {
         const { books } = await api.getBooks();
         const randomBook = books[Math.floor(Math.random() * books.length)];
 
-        const user = getRandomUser();
+        const user = getLastUser();
         const { token } = await api.generateToken({ userName: user.username, password: user.password });
 
         await api.addBooksToCollection(user.userID!, randomBook.isbn, token);
