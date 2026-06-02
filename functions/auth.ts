@@ -7,10 +7,16 @@ import type {
   LoginResponse,
 } from './types';
 
+/** Type guard: returns `true` when `context` is a Playwright `Page`. */
 function isPage(context: APIRequestContext | Page): context is Page {
   return 'goto' in context;
 }
 
+/**
+ * Creates a new user account.
+ * Accepts either a raw `APIRequestContext` or a `Page` (the request context is
+ * extracted automatically). Asserts a 201 response status.
+ */
 export async function registerUser(api: APIRequestContext, userData: RegisterPayload): Promise<RegisterResponse>;
 export async function registerUser(page: Page, userData: RegisterPayload): Promise<RegisterResponse>;
 export async function registerUser(
@@ -23,6 +29,10 @@ export async function registerUser(
   return response.json() as Promise<RegisterResponse>;
 }
 
+/**
+ * Authenticates a user and returns a JWT token.
+ * Accepts either a raw `APIRequestContext` or a `Page`. Asserts a 200 status.
+ */
 export async function generateToken(api: APIRequestContext, credentials: Credentials): Promise<LoginResponse>;
 export async function generateToken(page: Page, credentials: Credentials): Promise<LoginResponse>;
 export async function generateToken(
@@ -35,6 +45,10 @@ export async function generateToken(
   return response.json() as Promise<LoginResponse>;
 }
 
+/**
+ * Retrieves a user's profile by ID.
+ * Accepts either a raw `APIRequestContext` or a `Page`. Asserts a 200 status.
+ */
 export async function getUserProfile(
   context: APIRequestContext | Page,
   userID: UserId
