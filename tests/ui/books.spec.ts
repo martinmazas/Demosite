@@ -1,4 +1,7 @@
 import { test, expect } from '@/fixtures';
+import { registerUser } from '@/functions/auth';
+import { Book } from '@/functions/books';
+import { generateUserData } from '@/functions/testData';
 
 test.describe('Books', () => {
     test(
@@ -32,4 +35,24 @@ test.describe('Books', () => {
             expect(booksPage.url()).toContain(isbn);
         }
     )
+
+    // test(
+    //     'Collection > Add book and verify in profile',
+    //     { annotation: { type: 'ID', description: 'COLL-001' } },
+    //     async ({ booksPage }) => {
+    //         const user = generateUserData();
+    //         const credentials = {
+    //             firstName: user.firstName,
+    //             lastName: user.lastName,
+    //             userName: user.username,
+    //             password: user.password
+    //         }
+    //         await registerUser(booksPage, credentials);
+    //         const api = await booksPage.getAPI();
+    //         const userId = await booksPage.getUserId();
+    //         const books = await listBooks(api);
+    //         // const target: Book = books[0];
+
+    //     }
+    // )
 });

@@ -57,10 +57,9 @@ export class BasePage {
 
   /** Reads the current user's ID from `localStorage.userInfo`. */
   async getUserId(): Promise<string> {
-    const userInfo = await this.page.evaluate(() =>
-      JSON.parse(localStorage.getItem('userInfo') || '{}')
-    );
-    return userInfo.userId;
+    const cookies = await this.page.context().cookies();
+    const cookie = cookies.find(c => c.name === 'userID');
+    return cookie?.value ?? '';
   }
 
   /**
