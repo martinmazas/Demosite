@@ -51,10 +51,10 @@ export async function generateToken(
  */
 export async function getUserProfile(
   context: APIRequestContext | Page,
-  userID: UserId
+  userID: string
 ): Promise<RegisterResponse> {
   const api = isPage(context) ? context.request : context;
-  const response = await api.get('Account/v1/user/', { data: userID });
+  const response = await api.get(`Account/v1/user/${userID}`);
   expect(response.status()).toBe(200);
   return response.json() as Promise<RegisterResponse>
 }
