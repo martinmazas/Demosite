@@ -70,7 +70,6 @@ export class BasePage {
   async getUserData(): Promise<UserData> {
     const api = await this.getAPI();
     const userId = await this.getUserId();
-    console.log(userId);
     const response = await api.get(`/Account/v1/User/${userId}`);
     return response.json() as Promise<UserData>;
   }
