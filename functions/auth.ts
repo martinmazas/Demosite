@@ -5,7 +5,9 @@ import type {
   UserId,
   RegisterResponse,
   LoginResponse,
+  DeleteResponse,
 } from './types';
+import { AuthAPI } from '@/fixtures/BaseAPI';
 
 /** Type guard: returns `true` when `context` is a Playwright `Page`. */
 function isPage(context: APIRequestContext | Page): context is Page {
@@ -57,4 +59,12 @@ export async function getUserProfile(
   const response = await api.get(`Account/v1/user/${userID}`);
   expect(response.status()).toBe(200);
   return response.json() as Promise<RegisterResponse>
+}
+
+export async function deleteUser(
+  api: AuthAPI,
+  token: string,
+  userId: string
+): Promise<DeleteResponse> {
+  return api.deleteUser({ userID: userId }, token);
 }
