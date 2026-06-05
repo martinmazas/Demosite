@@ -1,6 +1,7 @@
 import { expect, test } from '@/fixtures';
 import { registerUser, generateToken, deleteUser } from '@/functions/auth';
 import { generateUserData } from '@/functions/testData';
+import { RegisterResponse } from '@/functions/types';
 
 test.describe('Login', () => {
     test(
@@ -8,14 +9,14 @@ test.describe('Login', () => {
         { annotation: { type: 'id', description: 'TC-L001' } },
         async ({ loginPage, api }) => {
             const { username, password } = generateUserData();
-            const userId  = await registerUser(api, { userName: username, password });
+            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
             try {
                 await loginPage.login(username, password);
                 await expect(loginPage.findByRole('button', 'Logout')).toBeVisible();
                 expect(loginPage.url()).toContain('profile');
             } finally {
                 const { token } = await generateToken(api, { userName: username, password });
-                await deleteUser(api, token, userId.userId);
+                await deleteUser(api, token, userID);
             }
         }
     );

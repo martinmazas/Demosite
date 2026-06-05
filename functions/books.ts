@@ -5,7 +5,6 @@ import { BaseAPI } from '@/fixtures/BaseAPI';
 
 export async function listBooks(context: APIRequestContext): Promise<BooksResponse> {
   return new BaseAPI(context).listBooks();
-
 }
 
 export async function getBook(api: APIRequestContext, isbn: string): Promise<Book> {
