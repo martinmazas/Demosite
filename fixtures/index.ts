@@ -1,13 +1,12 @@
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { BookPage } from '@/pages/BookPage';
-import { test as base } from '@playwright/test';
-import { AuthAPI } from './BaseAPI';
+import { test as base, APIRequestContext } from '@playwright/test';
 
 type MyFixtures = {
     loginPage: LoginPage;
     registerPage: RegisterPage;
-    api: AuthAPI;
+    api: APIRequestContext;
     booksPage: BookPage;
 }
 
@@ -19,7 +18,7 @@ export const test = base.extend<MyFixtures>({
         await use(new RegisterPage(page));
     },
     api: async ({ request }, use) => {
-        await use(new AuthAPI(request));
+        await use(request);
     },
     booksPage: async ({ page }, use) => {
         await use(new BookPage(page));

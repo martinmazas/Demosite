@@ -1,7 +1,8 @@
 import { test, expect } from '@/fixtures';
-import { registerUser, deleteUser } from '@/functions/auth';
+import { registerUser, generateToken, getUserProfile, deleteUser } from '@/functions/auth';
 import { addToCollection, listBooks } from '@/functions/books';
 import { generateUserData } from '@/functions/testData';
+import { UserProfileResponse } from '@/functions/types';
 
 test.describe('Books', () => {
     test(
@@ -48,10 +49,10 @@ test.describe('Books', () => {
             const { books } = await listBooks(booksPage);
             const isbn = books[0].isbn;
 
-            await addToCollection(api, userID, isbn, credentials);
+            const { token } = await generateToken(api, credentials);
+            await addToCollection(api, userID, isbn, token);
 
-            const { token } = await api.generateToken(credentials);
-            const profile = await api.getUserProfile({ userID }, token);
+            const profile = await getUserProfile(api, userID, token) as UserProfileResponse;
             expect(profile.books.some(b => b.isbn === isbn)).toBe(true);
 
             await deleteUser(api, token, userID);

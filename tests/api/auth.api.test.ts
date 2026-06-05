@@ -1,5 +1,7 @@
 import { test, expect } from '@/fixtures/index';
+import { registerUser, generateToken, getUserProfile, deleteUser } from '@/functions/auth';
 import { generateUserData } from '@/functions/testData';
+import { DeleteResponse, UserProfileResponse } from '@/functions/types';
 
 test.describe('Auth', () => {
     test(
@@ -7,15 +9,15 @@ test.describe('Auth', () => {
         { annotation: { type: 'id', description: 'TC-A001' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
-            const response = await api.registerUser({ userName: username, password });
-            const { token } = await api.generateToken({ userName: username, password });
+            const response = await registerUser(api, { userName: username, password });
+            const { token } = await generateToken(api, { userName: username, password });
 
             try {
                 expect(response.userID).toBeTruthy();
                 expect(response.username).toBe(username);
                 expect(response.books).toHaveLength(0);
             } finally {
-                await api.deleteUser({ userID: response.userID }, token);
+                await deleteUser(api, token, response.userID);
             }
         }
     );
@@ -25,8 +27,8 @@ test.describe('Auth', () => {
         { annotation: { type: 'id', description: 'TC-A002' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
-            const { userID } = await api.registerUser({ userName: username, password });
-            const response = await api.generateToken({ userName: username, password });
+            const { userID } = await registerUser(api, { userName: username, password });
+            const response = await generateToken(api, { userName: username, password });
 
             try {
                 expect(response.status).toBe('Success');
@@ -34,7 +36,7 @@ test.describe('Auth', () => {
                 expect(response.token).toBeTruthy();
                 expect(response.expires).toBeTruthy();
             } finally {
-                await api.deleteUser({ userID }, response.token);
+                await deleteUser(api, response.token, userID);
             }
         }
     );
@@ -44,15 +46,15 @@ test.describe('Auth', () => {
         { annotation: { type: 'id', description: 'TC-A003' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
-            const { userID } = await api.registerUser({ userName: username, password });
-            const { token } = await api.generateToken({ userName: username, password });
+            const { userID } = await registerUser(api, { userName: username, password });
+            const { token } = await generateToken(api, { userName: username, password });
 
             try {
-                const profile = await api.getUserProfile({ userID }, token);
+                const profile = await getUserProfile(api, userID, token) as UserProfileResponse;
                 expect(profile.userId).toBe(userID);
                 expect(profile.username).toBe(username);
             } finally {
-                await api.deleteUser({ userID }, token);
+                await deleteUser(api, token, userID);
             }
         }
     );
@@ -62,13 +64,14 @@ test.describe('Auth', () => {
         { annotation: { type: 'id', description: 'TC-A004' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
-            const { userID } = await api.registerUser({ userName: username, password });
-            const { token } = await api.generateToken({ userName: username, password });
+            const { userID } = await registerUser(api, { userName: username, password });
+            const { token } = await generateToken(api, { userName: username, password });
 
-            await api.deleteUser({ userID }, token);
+            await deleteUser(api, token, userID);
 
-            const { token: freshToken } = await api.generateToken({ userName: username, password });
-            await expect(api.getUserProfile({ userID }, freshToken)).rejects.toThrow('User not found!');
+            const result = await getUserProfile(api, userID, token);
+            expect('userId' in result).toBe(false);
+            expect((result as DeleteResponse).message).toBe('User not found!');
         }
     );
 });

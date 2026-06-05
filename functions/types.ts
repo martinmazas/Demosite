@@ -33,7 +33,7 @@ export interface UserProfileResponse {
 }
 
 export interface DeleteResponse {
-  code: number;
+  code: string | number;
   message: string;
 }
 

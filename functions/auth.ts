@@ -1,25 +1,22 @@
 import { APIRequestContext, Page, expect } from '@playwright/test';
 import type {
   Credentials,
-  RegisterPayload,
-  UserId,
   RegisterResponse,
   LoginResponse,
   DeleteResponse,
   UserProfileResponse,
 } from './types';
-import { AuthAPI } from '@/fixtures/BaseAPI';
 
 /** Type guard: returns `true` when `context` is a Playwright `Page`. */
 function isPage(context: APIRequestContext | Page): context is Page {
   return typeof (context as any).goto === 'function';
 }
 
-export async function registerUser(api: APIRequestContext, userData: RegisterPayload): Promise<RegisterResponse>;
-export async function registerUser(page: Page, userData: RegisterPayload): Promise<RegisterResponse>;
+export async function registerUser(api: APIRequestContext, userData: Credentials): Promise<RegisterResponse>;
+export async function registerUser(page: Page, userData: Credentials): Promise<RegisterResponse>;
 export async function registerUser(
   context: APIRequestContext | Page,
-  userData: RegisterPayload
+  userData: Credentials
 ): Promise<RegisterResponse> {
   const api = isPage(context) ? context.request : context;
   const response = await api.post('/Account/v1/User', { data: userData });
@@ -27,10 +24,6 @@ export async function registerUser(
   return response.json() as Promise<RegisterResponse>;
 }
 
-/**
- * Authenticates a user and returns a JWT token.
- * Accepts either a raw `APIRequestContext` or a `Page`. Asserts a 200 status.
- */
 export async function generateToken(api: APIRequestContext, credentials: Credentials): Promise<LoginResponse>;
 export async function generateToken(page: Page, credentials: Credentials): Promise<LoginResponse>;
 export async function generateToken(
@@ -43,23 +36,29 @@ export async function generateToken(
   return response.json() as Promise<LoginResponse>;
 }
 
-/**
- * Retrieves a user's profile by ID.
- * Accepts either a raw `APIRequestContext` or a `Page`. Asserts a 200 status.
- */
 export async function getUserProfile(
-  api: AuthAPI,
+  api: APIRequestContext,
   userID: string,
-  credentials: Credentials
-): Promise<UserProfileResponse> {
-  const { token } = await api.generateToken(credentials);
-  return await api.getUserProfile({ userID }, token);
+  token: string
+): Promise<UserProfileResponse | DeleteResponse> {
+  const response = await api.get(`/Account/v1/User/${userID}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (response.ok()) {
+    return response.json() as Promise<UserProfileResponse>;
+  }
+  return response.json() as Promise<DeleteResponse>;
 }
 
 export async function deleteUser(
-  api: AuthAPI,
+  api: APIRequestContext,
   token: string,
   userId: string
 ): Promise<DeleteResponse> {
-  return api.deleteUser({ userID: userId }, token);
+  const response = await api.delete(`/Account/v1/User/${userId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  expect(response.status()).toBe(204);
+  const text = await response.text();
+  return (text ? JSON.parse(text) : {}) as DeleteResponse;
 }
