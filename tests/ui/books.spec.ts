@@ -1,6 +1,6 @@
 import { test, expect } from '@/fixtures';
-import { registerUser } from '@/functions/auth';
-import { Book } from '@/functions/books';
+import { registerUser, deleteUser } from '@/functions/auth';
+import { addToCollection, listBooks } from '@/functions/books';
 import { generateUserData } from '@/functions/testData';
 
 test.describe('Books', () => {
@@ -36,23 +36,25 @@ test.describe('Books', () => {
         }
     )
 
-    // test(
-    //     'Collection > Add book and verify in profile',
-    //     { annotation: { type: 'ID', description: 'COLL-001' } },
-    //     async ({ booksPage }) => {
-    //         const user = generateUserData();
-    //         const credentials = {
-    //             firstName: user.firstName,
-    //             lastName: user.lastName,
-    //             userName: user.username,
-    //             password: user.password
-    //         }
-    //         await registerUser(booksPage, credentials);
-    //         const api = await booksPage.getAPI();
-    //         const userId = await booksPage.getUserId();
-    //         const books = await listBooks(api);
-    //         // const target: Book = books[0];
+    test(
+        'Collection > Add book and verify in profile',
+        { annotation: { type: 'ID', description: 'COLL-001' } },
+        async ({ booksPage, api }) => {
+            const user = generateUserData();
+            const credentials = { userName: user.username, password: user.password };
+            const registerPayload = { firstName: user.firstName, lastName: user.lastName, ...credentials };
 
-    //     }
-    // )
+            const { userID } = await registerUser(booksPage, registerPayload);
+            const { books } = await listBooks(booksPage);
+            const isbn = books[0].isbn;
+
+            await addToCollection(api, userID, isbn, credentials);
+
+            const { token } = await api.generateToken(credentials);
+            const profile = await api.getUserProfile({ userID }, token);
+            expect(profile.books.some(b => b.isbn === isbn)).toBe(true);
+
+            await deleteUser(api, token, userID);
+        }
+    )
 });

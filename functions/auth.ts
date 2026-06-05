@@ -12,10 +12,16 @@ import { AuthAPI } from '@/fixtures/BaseAPI';
 
 /** Type guard: returns `true` when `context` is a Playwright `Page`. */
 function isPage(context: APIRequestContext | Page): context is Page {
-  return 'goto' in context;
+  return typeof (context as any).goto === 'function';
 }
 
-export async function registerUser(api: APIRequestContext, userData: RegisterPayload): Promise<RegisterResponse> {
+export async function registerUser(api: APIRequestContext, userData: RegisterPayload): Promise<RegisterResponse>;
+export async function registerUser(page: Page, userData: RegisterPayload): Promise<RegisterResponse>;
+export async function registerUser(
+  context: APIRequestContext | Page,
+  userData: RegisterPayload
+): Promise<RegisterResponse> {
+  const api = isPage(context) ? context.request : context;
   const response = await api.post('/Account/v1/User', { data: userData });
   expect(response.status()).toBe(201);
   return response.json() as Promise<RegisterResponse>;
