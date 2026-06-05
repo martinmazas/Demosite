@@ -2,7 +2,7 @@ import { test, expect } from '@/fixtures/index';
 import { registerUser, generateToken, getUserProfile, deleteUser } from '@/functions/auth';
 import { listBooks, getBook, addToCollection, removeFromCollection, clearCollection } from '@/functions/books';
 import { generateUserData } from '@/functions/testData';
-import { UserProfileResponse } from '@/functions/types';
+import { RegisterResponse, UserProfileResponse } from '@/functions/types';
 
 test.describe('Books', () => {
     test(
@@ -41,7 +41,7 @@ test.describe('Books', () => {
         async ({ api }) => {
             const isbn = '9781449331818';
             const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password });
+            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
             const { token } = await generateToken(api, { userName: username, password });
 
             try {
@@ -60,7 +60,7 @@ test.describe('Books', () => {
         async ({ api }) => {
             const isbn = '9781449331818';
             const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password });
+            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
             const { token } = await generateToken(api, { userName: username, password });
 
             try {
@@ -80,7 +80,7 @@ test.describe('Books', () => {
         async ({ api }) => {
             const isbn = '9781449331818';
             const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password });
+            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
             const { token } = await generateToken(api, { userName: username, password });
 
             try {

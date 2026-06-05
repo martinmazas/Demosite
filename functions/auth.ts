@@ -7,11 +7,7 @@ import type {
   UserProfileResponse,
 } from './types';
 import { BaseAPI } from '../fixtures/BaseAPI';
-
-/** Type guard: returns `true` when `context` is a Playwright `Page`. */
-function isPage(context: APIRequestContext | Page): context is Page {
-  return typeof (context as any).goto === 'function';
-}
+import { isPage } from './utils';
 
 export async function registerUser(api: APIRequestContext, userData: Credentials): Promise<RegisterResponse | ApiResponse>;
 export async function registerUser(page: Page, userData: Credentials): Promise<RegisterResponse | ApiResponse>;
