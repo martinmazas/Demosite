@@ -8,14 +8,14 @@ test.describe('Login', () => {
         { annotation: { type: 'id', description: 'TC-L001' } },
         async ({ loginPage, api }) => {
             const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password });
+            const userId  = await registerUser(api, { userName: username, password });
             try {
                 await loginPage.login(username, password);
                 await expect(loginPage.findByRole('button', 'Logout')).toBeVisible();
                 expect(loginPage.url()).toContain('profile');
             } finally {
                 const { token } = await generateToken(api, { userName: username, password });
-                await deleteUser(api, token, userID);
+                await deleteUser(api, token, userId.userId);
             }
         }
     );

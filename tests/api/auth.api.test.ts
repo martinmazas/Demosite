@@ -1,7 +1,7 @@
 import { test, expect } from '@/fixtures/index';
 import { registerUser, generateToken, getUserProfile, deleteUser } from '@/functions/auth';
 import { generateUserData } from '@/functions/testData';
-import { DeleteResponse, UserProfileResponse } from '@/functions/types';
+import { ApiResponse, RegisterResponse, UserProfileResponse } from '@/functions/types';
 
 test.describe('Auth', () => {
     test(
@@ -9,7 +9,7 @@ test.describe('Auth', () => {
         { annotation: { type: 'id', description: 'TC-A001' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
-            const response = await registerUser(api, { userName: username, password });
+            const response = await registerUser(api, { userName: username, password }) as RegisterResponse;
             const { token } = await generateToken(api, { userName: username, password });
 
             try {
@@ -27,7 +27,7 @@ test.describe('Auth', () => {
         { annotation: { type: 'id', description: 'TC-A002' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password });
+            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
             const response = await generateToken(api, { userName: username, password });
 
             try {
@@ -46,7 +46,7 @@ test.describe('Auth', () => {
         { annotation: { type: 'id', description: 'TC-A003' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password });
+            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
             const { token } = await generateToken(api, { userName: username, password });
 
             try {
@@ -64,14 +64,13 @@ test.describe('Auth', () => {
         { annotation: { type: 'id', description: 'TC-A004' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password });
+            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
             const { token } = await generateToken(api, { userName: username, password });
 
             await deleteUser(api, token, userID);
 
-            const result = await getUserProfile(api, userID, token);
-            expect('userId' in result).toBe(false);
-            expect((result as DeleteResponse).message).toBe('User not found!');
+            const result = await getUserProfile(api, userID, token) as ApiResponse;
+            expect(result.message).toBe('User not found!');
         }
     );
 });

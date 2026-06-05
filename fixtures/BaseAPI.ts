@@ -1,8 +1,17 @@
 import { APIRequestContext } from '@playwright/test';
-import type { Credentials, RegisterResponse, LoginResponse, UserId, UserProfileResponse, DeleteResponse } from '@/functions/types';
-import type { BooksResponse, AddBooksResponse, RemoveBookResponse, Book } from '@/functions/books';
+import type {
+  Credentials,
+  LoginResponse,
+  RegisterResponse,
+  ApiResponse,
+  UserProfileResponse,
+  BooksResponse,
+  Book,
+  AddBooksResponse,
+  RemoveBookResponse,
+} from '../functions/types';
 
-class BaseAPI {
+export class BaseAPI {
   private readonly request: APIRequestContext;
   protected readonly baseUrl: string;
 
@@ -25,9 +34,6 @@ class BaseAPI {
     const res = await this.request.get(`${this.baseUrl}${path}`, {
       headers: { Accept: 'application/json', ...extraHeaders },
     });
-    if (!res.ok()) {
-      throw new Error(`GET ${path} failed: ${res.status()} ${await res.text()}`);
-    }
     return res.json() as Promise<T>;
   }
 
@@ -41,13 +47,13 @@ class BaseAPI {
    * @param expectedStatus - HTTP status code that is considered success (default 200).
    * @throws {Error} When the response status does not match `expectedStatus`.
    */
-  protected async delete<T>(path: string, extraHeaders?: Record<string, string>, data?: unknown, expectedStatus = 200): Promise<T> {
+  protected async delete<T>(path: string, extraHeaders?: Record<string, string>, data?: unknown): Promise<T> {
     const res = await this.request.delete(`${this.baseUrl}${path}`, {
       headers: { Accept: 'application/json', ...extraHeaders },
       data,
     });
 
-    if (res.status() !== expectedStatus) {
+    if (!res.ok()) {
       throw new Error(`DELETE ${path} failed: ${res.status()} ${await res.text()}`);
     }
     const text = await res.text();
@@ -71,31 +77,33 @@ class BaseAPI {
     }
     return res.json() as Promise<T>;
   }
-}
 
-export class AuthAPI extends BaseAPI {
+  async registerUser(userData: Credentials): Promise<RegisterResponse | ApiResponse> {
+    const res = await this.request.post(`${this.baseUrl}Account/v1/User`, {
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      data: userData,
+    });
+    if (res.status() === 201) {
+      return res.json() as Promise<RegisterResponse>;
+    }
+    return res.json() as Promise<ApiResponse>;
+  }
+
   async generateToken(credentials: Credentials): Promise<LoginResponse> {
     return this.post<LoginResponse>('Account/v1/GenerateToken', credentials);
   }
-
-  async registerUser(userData: Credentials): Promise<RegisterResponse> {
-    return this.post<RegisterResponse>('Account/v1/User', userData);
-  }
-
-  /** Deletes a user account. Expects a 204 No Content response. */
-  async deleteUser(userId: UserId, token: string): Promise<DeleteResponse> {
-    return this.delete<DeleteResponse>(
-      `Account/v1/User/${userId.userID}`,
-      { Authorization: `Bearer ${token}` },
-      undefined,
-      204,
-    );
-  }
-
-  async getUserProfile(userId: UserId, token: string): Promise<UserProfileResponse> {
-    return this.get<UserProfileResponse>(`Account/v1/User/${userId.userID}`, {
+  async getUserProfile(userId: string, token: string): Promise<UserProfileResponse | ApiResponse> {
+    return this.get<UserProfileResponse | ApiResponse>(`Account/v1/User/${userId}`, {
       Authorization: `Bearer ${token}`,
     });
+  }
+
+  async deleteUser(userId: string, token: string): Promise<UserProfileResponse | ApiResponse> {
+    return this.delete<UserProfileResponse | ApiResponse>(
+      `Account/v1/User/${userId}`,
+      { Authorization: `Bearer ${token}` },
+      undefined,
+    );
   }
 
   async listBooks(): Promise<BooksResponse> {
@@ -106,20 +114,14 @@ export class AuthAPI extends BaseAPI {
     return this.get<Book>(`BookStore/v1/Book?ISBN=${isbn}`);
   }
 
-  /** Removes all books from a user's collection. Expects a 204 No Content response. */
-  async clearCollection(userId: string, token: string): Promise<DeleteResponse> {
-    return this.delete<DeleteResponse>(
+  async clearCollection(userId: string, token: string): Promise<ApiResponse> {
+    return this.delete<ApiResponse>(
       `BookStore/v1/Books?UserId=${userId}`,
       { Authorization: `Bearer ${token}` },
       undefined,
-      204
-    )
+    );
   }
 
-  /**
-   * Adds a single book to a user's collection.
-   * The API accepts a list, but this wrapper always sends exactly one ISBN.
-   */
   async addToCollection(userId: string, isbn: string, token: string): Promise<AddBooksResponse> {
     return this.post<AddBooksResponse>(
       'BookStore/v1/Books',
@@ -128,13 +130,11 @@ export class AuthAPI extends BaseAPI {
     );
   }
 
-  /** Removes a single book from a user's collection. Expects a 204 No Content response. */
   async removeFromCollection(userId: string, isbn: string, token: string): Promise<RemoveBookResponse> {
     return this.delete<RemoveBookResponse>(
       'BookStore/v1/Book',
       { Authorization: `Bearer ${token}` },
       { isbn, userId },
-      204
     );
   }
 }

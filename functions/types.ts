@@ -1,15 +1,6 @@
-// Primitives
-export interface Username {
-  username: string;
-}
-
-export interface Password {
-  password: string;
-}
-
-// Auth types
-export interface Credentials extends Password {
+export interface Credentials {
   userName: string;
+  password: string;
 }
 
 export interface RegisterPayload extends Credentials {
@@ -17,13 +8,10 @@ export interface RegisterPayload extends Credentials {
   lastName: string;
 }
 
-export interface UserId {
-  userID: string;
-}
-
-export interface RegisterResponse extends UserId {
+export interface RegisterResponse {
   username: string;
   books: Array<{ isbn: string }>;
+  userID: string;
 }
 
 export interface UserProfileResponse {
@@ -32,7 +20,7 @@ export interface UserProfileResponse {
   books: Array<{ isbn: string }>;
 }
 
-export interface DeleteResponse {
+export interface ApiResponse {
   code: string | number;
   message: string;
 }
@@ -77,9 +65,11 @@ export interface RemoveBookResponse {
 }
 
 // User data types
-export interface UserData extends Username, Password {
+export interface UserData {
   firstName: string;
   lastName: string;
+  username: string;
+  password: string;
 }
 
 export interface UserRecord extends UserData {
