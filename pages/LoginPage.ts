@@ -3,10 +3,10 @@ import { expect } from '@/fixtures/index';
 
 export class LoginPage extends BasePage {
     async login(username: string, password: string): Promise<void> {
-        await this.navigateTo('/login');
-        await this.findByRole('textbox', 'UserName').fill(username);
-        await this.findByRole('textbox', 'Password').fill(password);
-        await this.findByRole('button', 'Login').click();
+        await this.page.goto('/login');
+        await this.getByRole('textbox', { name: 'UserName' }).fill(username);
+        await this.getByRole('textbox', { name: 'Password' }).fill(password);
+        await this.getByRole('button', { name: 'Login' }).click();
     }
 
     async expectError(): Promise<void> {

@@ -2,28 +2,27 @@ import { APIRequestContext, Page, expect } from '@playwright/test';
 import type {
   Credentials,
   RegisterResponse,
-  LoginResponse,
   ApiResponse,
+  LoginResponse,
   UserProfileResponse,
+  UserData,
 } from './types';
 import { BaseAPI } from '../fixtures/BaseAPI';
+import { RegisterPage } from '../pages/RegisterPage';
 import { isPage } from './utils';
 
 export async function registerUser(api: APIRequestContext, userData: Credentials): Promise<RegisterResponse | ApiResponse>;
-export async function registerUser(page: Page, userData: Credentials): Promise<RegisterResponse | ApiResponse>;
+export async function registerUser(page: RegisterPage, userData: UserData): Promise<void>;
 export async function registerUser(
-  context: APIRequestContext | Page,
-  userData: Credentials
-): Promise<RegisterResponse | ApiResponse> {
+  context: APIRequestContext | RegisterPage,
+  userData: Credentials | UserData
+): Promise<RegisterResponse | ApiResponse | void> {
   if (!isPage(context)) {
-    return new BaseAPI(context).registerUser(userData);
+    return new BaseAPI(context).registerUser(userData as Credentials);
   }
 
-  const response = await context.request.post('/Account/v1/User', { data: userData });
-  if (response.status() === 201) {
-    return response.json() as Promise<RegisterResponse>;
-  }
-  return response.json() as Promise<ApiResponse>;
+  const { firstName, lastName, username, password } = userData as UserData;
+  await context.register(firstName, lastName, username, password);
 }
 
 export async function generateToken(api: APIRequestContext, credentials: Credentials): Promise<LoginResponse>;

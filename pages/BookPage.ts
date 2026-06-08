@@ -32,13 +32,13 @@ export class BookPage extends BasePage {
     }
 
     async getBooks(): Promise<BooksResponse> {
-        await this.navigateTo('/books');
+        await this.goto('/books');
         return { books: await this.readTableRows() };
     }
 
     async searchBooks(query: string): Promise<BooksResponse> {
-        await this.navigateTo('/books');
-        const searchBox = this.findByRole('textbox', 'Type to search');
+        await this.goto('/books');
+        const searchBox = this.getByRole('textbox', {name: 'Type to search'});
         await searchBox.fill(query);
         await searchBox.press('Enter');
         return { books: await this.readTableRows() };

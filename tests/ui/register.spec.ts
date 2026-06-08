@@ -23,7 +23,7 @@ test.describe('Registration', () => {
 
             try {
                 await loginPage.login(username, password);
-                await expect(loginPage.findByRole('button', 'Logout')).toBeVisible();
+                await expect(loginPage.getByRole('button', { name: 'Logout' })).toBeVisible();
             } finally {
                 const userID = await loginPage.getUserId();
                 const { token } = await generateToken(api, { userName: username, password });

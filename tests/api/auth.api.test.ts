@@ -23,8 +23,21 @@ test.describe('Auth', () => {
     );
 
     test(
-        'Token > Generated successfully for valid credentials',
+        'Registration > Registered user > Error returned',
         { annotation: { type: 'id', description: 'TC-A002' } },
+        async ({ api }) => {
+            const username: string = process.env.TEST_USERNAME!;
+            const password: string = process.env.TEST_PASSWORD!;
+
+            const response = await registerUser(api, { userName: username, password }) as ApiResponse;
+            expect(response.code).toBe('1204');
+            expect(response.message).toBe('User exists!');
+        }
+    )
+
+    test(
+        'Token > Generated successfully for valid credentials',
+        { annotation: { type: 'id', description: 'TC-A003' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
             const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
@@ -42,8 +55,19 @@ test.describe('Auth', () => {
     );
 
     test(
+        'Token > Not generated due to invalid credentials',
+        { annotation: { type: 'id', description: 'TC-A006' } },
+        async ({ api }) => {
+            const response = await generateToken(api, { userName: 'wrong_username', password: 'wrong_pass' });
+            expect(response.status).toBe('Failed');
+            expect(response.result).toBe('User authorization failed.');
+            expect(response.token).toBeNull();
+        }
+    )
+
+    test(
         'Profile > Returns correct user data',
-        { annotation: { type: 'id', description: 'TC-A003' } },
+        { annotation: { type: 'id', description: 'TC-A004' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
             const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
@@ -61,7 +85,7 @@ test.describe('Auth', () => {
 
     test(
         'Account deletion > User deleted and no longer accessible',
-        { annotation: { type: 'id', description: 'TC-A004' } },
+        { annotation: { type: 'id', description: 'TC-A005' } },
         async ({ api }) => {
             const { username, password } = generateUserData();
             const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;

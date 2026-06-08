@@ -1,5 +1,5 @@
 import { expect, test } from '@/fixtures';
-import { registerUser, generateToken, deleteUser } from '@/functions/auth';
+import { registerUser } from '@/functions/auth';
 import { generateUserData } from '@/functions/testData';
 import { RegisterResponse } from '@/functions/types';
 
@@ -9,14 +9,22 @@ test.describe('Login', () => {
         { annotation: { type: 'id', description: 'TC-L001' } },
         async ({ loginPage, api }) => {
             const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
+            const registration = await registerUser(api, { userName: username, password }) as RegisterResponse;
+
             try {
                 await loginPage.login(username, password);
-                await expect(loginPage.findByRole('button', 'Logout')).toBeVisible();
-                expect(loginPage.url()).toContain('profile');
+                await expect(loginPage.getByRole('button', { name: 'Logout' })).toBeVisible();
+                console.log(await loginPage.getUserId());
+                expect(loginPage.url()).toContain("profile");
+                
             } finally {
-                const { token } = await generateToken(api, { userName: username, password });
-                await deleteUser(api, token, userID);
+                const tokenRes = await api.post('/Account/v1/GenerateToken', {
+                    data: { userName: username, password },
+                });
+                const { token } = await tokenRes.json();
+                await api.delete(`/Account/v1/User/${registration.userID}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
             }
         }
     );
@@ -26,7 +34,7 @@ test.describe('Login', () => {
         { annotation: { type: 'id', description: 'TC-L002' } },
         async ({ loginPage }) => {
             await loginPage.login('wrong_username', 'wrong_password');
-            await loginPage.expectError();
+            await expect(loginPage.page.getByText('Invalid username or password!')).toBeVisible();
         }
     );
 });

@@ -2,7 +2,7 @@ import { test, expect } from '@/fixtures/index';
 import { registerUser, generateToken, getUserProfile, deleteUser } from '@/functions/auth';
 import { listBooks, getBook, addToCollection, removeFromCollection, clearCollection } from '@/functions/books';
 import { generateUserData } from '@/functions/testData';
-import { RegisterResponse, UserProfileResponse } from '@/functions/types';
+import { ApiResponse, Book, RegisterResponse, UserProfileResponse } from '@/functions/types';
 
 test.describe('Books', () => {
     test(
@@ -29,11 +29,22 @@ test.describe('Books', () => {
         { annotation: { type: 'id', description: 'TC-B002' } },
         async ({ api }) => {
             const isbn = '9781449325862';
-            const book = await getBook(api, isbn);
+            const book = await getBook(api, isbn) as Book;
             expect(book).toBeDefined();
             expect(book.isbn).toBe(isbn);
         }
     );
+
+    test(
+        'Catalog > Wrong ISBN shows error',
+        {annotation: {type: 'id', description: 'TC-B006'}},
+        async({api}) => {
+            const isbn = '9781449325865';
+            const response = await getBook(api, isbn) as ApiResponse;
+            expect(response.code).toBe("1205");
+            expect(response.message).toBe('ISBN supplied is not available in Books Collection!');
+        }
+    )
 
     test(
         'Collection > Book added to user collection',

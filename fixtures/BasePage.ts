@@ -1,6 +1,4 @@
-import { APIRequestContext, Locator, Page } from '@playwright/test';
-type AriaRole = Parameters<Page['getByRole']>[0];
-
+import { APIRequestContext, Page } from '@playwright/test';
 export interface UserData {
   userId: string;
   username: string;
@@ -8,7 +6,7 @@ export interface UserData {
 }
 
 export class BasePage {
-  protected readonly page: Page;
+  public page: Page;
   private api: APIRequestContext | null = null;
 
   /**
@@ -33,6 +31,12 @@ export class BasePage {
     });
   }
 
+  async getCookie(cookieName: string): Promise<string> {
+    const cookies = await this.page.context().cookies();
+    const cookie = cookies.find(c => c.name === cookieName);
+    return cookie?.value ?? '';
+  }
+
   /**
    * Returns a lazily-initialised `APIRequestContext` authenticated with the
    * token stored in `localStorage.userInfo`. On first call it reads the token,
@@ -42,12 +46,14 @@ export class BasePage {
   async getAPI(): Promise<APIRequestContext> {
     if (this.api) return this.api;
 
-    const userInfo = await this.page.evaluate(() =>
-      JSON.parse(localStorage.getItem('userInfo') || '{}')
-    );
+    const token = await this.getCookie('token');
+
+    // const userInfo = await this.page.evaluate(() =>
+    //   JSON.parse(localStorage.getItem('userInfo') || '{}')
+    // );
 
     await this.page.context().setExtraHTTPHeaders({
-      Authorization: `Bearer ${userInfo.token}`,
+      Authorization: `Bearer ${token}`,
     });
 
     const api = this.page.context().request;
@@ -57,9 +63,7 @@ export class BasePage {
 
   /** Reads the current user's ID from `localStorage.userInfo`. */
   async getUserId(): Promise<string> {
-    const cookies = await this.page.context().cookies();
-    const cookie = cookies.find(c => c.name === 'userID');
-    return cookie?.value ?? '';
+    return await this.getCookie('userID');
   }
 
   /**
@@ -71,14 +75,6 @@ export class BasePage {
     const userId = await this.getUserId();
     const response = await api.get(`/Account/v1/User/${userId}`);
     return response.json() as Promise<UserData>;
-  }
-
-  async navigateTo(path: string): Promise<void> {
-    await this.page.goto(path);
-  }
-
-  findByRole(role: AriaRole, name: string): Locator {
-    return this.page.getByRole(role, { name });
   }
 }
 
