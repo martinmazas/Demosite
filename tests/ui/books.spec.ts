@@ -1,6 +1,6 @@
 import { test, expect } from '@/fixtures';
 import { registerUser, generateToken, getUserProfile, deleteUser } from '@/functions/auth';
-import { addToCollection, listBooks } from '@/functions/books';
+import { addToCollection, clearCollection, listBooks } from '@/functions/books';
 import { generateUserData } from '@/functions/testData';
 import { UserProfileResponse } from '@/functions/types';
 
@@ -31,8 +31,8 @@ test.describe('Books', () => {
         async ({ booksPage }) => {
             const isbn = '9781449365035';
             const bookName = 'Speaking JavaScript';
-            await booksPage.navigateTo('/books');
-            await booksPage.findByRole('link', bookName).click();
+            await booksPage.goto('/books');
+            await booksPage.getByRole('link', { name: bookName }).click();
             expect(booksPage.url()).toContain(isbn);
         }
     )
@@ -40,22 +40,36 @@ test.describe('Books', () => {
     test(
         'Collection > Add book and verify in profile',
         { annotation: { type: 'ID', description: 'COLL-001' } },
-        async ({ booksPage, api }) => {
+        async ({ booksPage, loginPage, api }) => {
             const user = generateUserData();
-            const credentials = { userName: user.username, password: user.password };
-            const registerPayload = { firstName: user.firstName, lastName: user.lastName, ...credentials };
+            const credentials = {
+                userName: user.username,
+                password: user.password
+            }
 
-            const { userID } = await registerUser(booksPage, registerPayload);
-            const { books } = await listBooks(booksPage);
-            const isbn = books[0].isbn;
+            const bookName = 'Git Pocket Guide';
+            await registerUser(api, credentials);
 
-            const { token } = await generateToken(api, credentials);
-            await addToCollection(api, userID, isbn, token);
+            await loginPage.login(credentials.userName, credentials.password);
+            const userId = await loginPage.getUserId();
 
-            const profile = await getUserProfile(api, userID, token) as UserProfileResponse;
-            expect(profile.books.some(b => b.isbn === isbn)).toBe(true);
+            try {
+                await loginPage.getByRole('button', { name: 'Go To Book Store', exact: true }).click();
+                expect(loginPage.url()).toContain('books');
+                await loginPage.getByRole('link', { name: bookName }).click();
 
-            await deleteUser(api, token, userID);
+                loginPage.once('dialog', dialog => {
+                    console.log(`Dialog message: ${dialog.message()}`);
+                    dialog.dismiss().catch(() => { });
+                });
+
+                await loginPage.getByRole('button', { name: 'Add To Your Collection' }).click();
+                await loginPage.goto('/profile');
+                await expect(loginPage.getByRole('link', { name: bookName })).toBeVisible();
+            } finally {
+                const { token } = await generateToken(api, { userName: credentials.userName, password: credentials.password });
+                await deleteUser(api, token, userId);
+            }
         }
     )
 });

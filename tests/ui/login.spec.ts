@@ -14,9 +14,8 @@ test.describe('Login', () => {
             try {
                 await loginPage.login(username, password);
                 await expect(loginPage.getByRole('button', { name: 'Logout' })).toBeVisible();
-                console.log(await loginPage.getUserId());
                 expect(loginPage.url()).toContain("profile");
-                
+
             } finally {
                 const tokenRes = await api.post('/Account/v1/GenerateToken', {
                     data: { userName: username, password },

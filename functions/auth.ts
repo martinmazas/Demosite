@@ -5,24 +5,23 @@ import type {
   ApiResponse,
   LoginResponse,
   UserProfileResponse,
-  UserData,
 } from './types';
 import { BaseAPI } from '../fixtures/BaseAPI';
 import { RegisterPage } from '../pages/RegisterPage';
 import { isPage } from './utils';
 
-export async function registerUser(api: APIRequestContext, userData: Credentials): Promise<RegisterResponse | ApiResponse>;
-export async function registerUser(page: RegisterPage, userData: UserData): Promise<void>;
+// export async function registerUser(api: APIRequestContext, userData: Credentials): Promise<RegisterResponse | ApiResponse>;
+// export async function registerUser(page: RegisterPage, userData: UserData): Promise<void>;
 export async function registerUser(
-  context: APIRequestContext | RegisterPage,
-  userData: Credentials | UserData
+  context: APIRequestContext,
+  userData: Credentials
 ): Promise<RegisterResponse | ApiResponse | void> {
-  if (!isPage(context)) {
-    return new BaseAPI(context).registerUser(userData as Credentials);
-  }
+  // if (!isPage(context)) {
+  return new BaseAPI(context).registerUser(userData);
+  // }
 
-  const { firstName, lastName, username, password } = userData as UserData;
-  await context.register(firstName, lastName, username, password);
+  // const { firstName, lastName, username, password } = userData as UserData;
+  // await context.register(firstName, lastName, username, password);
 }
 
 export async function generateToken(api: APIRequestContext, credentials: Credentials): Promise<LoginResponse>;
