@@ -1,8 +1,6 @@
 import { test, expect } from '@/fixtures';
-import { registerUser, generateToken, getUserProfile, deleteUser } from '@/functions/auth';
-import { addToCollection, clearCollection, listBooks } from '@/functions/books';
+import { registerUser, generateToken, deleteUser } from '@/functions/auth';
 import { generateUserData } from '@/functions/testData';
-import { UserProfileResponse } from '@/functions/types';
 
 test.describe('Books', () => {
     test(
@@ -40,7 +38,7 @@ test.describe('Books', () => {
     test(
         'Collection > Add book and verify in profile',
         { annotation: { type: 'ID', description: 'COLL-001' } },
-        async ({ booksPage, loginPage, api }) => {
+        async ({ loginPage, api }) => {
             const user = generateUserData();
             const credentials = {
                 userName: user.username,
@@ -51,22 +49,22 @@ test.describe('Books', () => {
             await registerUser(api, credentials);
 
             await loginPage.login(credentials.userName, credentials.password);
-            const userId = await loginPage.getUserId();
-
+            
             try {
                 await loginPage.getByRole('button', { name: 'Go To Book Store', exact: true }).click();
                 expect(loginPage.url()).toContain('books');
                 await loginPage.getByRole('link', { name: bookName }).click();
-
+                
                 loginPage.once('dialog', dialog => {
                     console.log(`Dialog message: ${dialog.message()}`);
                     dialog.dismiss().catch(() => { });
                 });
-
+                
                 await loginPage.getByRole('button', { name: 'Add To Your Collection' }).click();
                 await loginPage.goto('/profile');
                 await expect(loginPage.getByRole('link', { name: bookName })).toBeVisible();
             } finally {
+                const userId = await loginPage.getUserId();
                 const { token } = await generateToken(api, { userName: credentials.userName, password: credentials.password });
                 await deleteUser(api, token, userId);
             }
