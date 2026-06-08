@@ -25,18 +25,8 @@ export async function registerUser(
   await context.register(firstName, lastName, username, password);
 }
 
-export async function generateToken(api: APIRequestContext, credentials: Credentials): Promise<LoginResponse>;
-export async function generateToken(page: Page, credentials: Credentials): Promise<LoginResponse>;
-export async function generateToken(
-  context: APIRequestContext | Page,
-  credentials: Credentials
-): Promise<LoginResponse> {
-  if (!isPage(context)) {
-    return new BaseAPI(context).generateToken(credentials);
-  }
-  const response = await context.request.post('/Account/v1/GenerateToken', { data: credentials });
-  expect(response.status()).toBe(200);
-  return response.json() as Promise<LoginResponse>;
+export async function generateToken(api: APIRequestContext, credentials: Credentials): Promise<LoginResponse> {
+  return new BaseAPI(api).generateToken(credentials);
 }
 
 export async function getUserProfile(
