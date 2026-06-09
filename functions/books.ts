@@ -1,8 +1,13 @@
 import { APIRequestContext } from '@playwright/test';
-import type { BooksResponse, Book, RemoveBookResponse, ApiResponse, AddBooksPayload } from './types';
+import type { BooksResponse, Book, RemoveBookResponse, ApiResponse } from './types';
 import { BaseAPI } from '@/fixtures/BaseAPI';
+import { BookPage } from '@/pages/BookPage';
+import { isPage } from './utils';
 
-export async function listBooks(context: APIRequestContext): Promise<BooksResponse> {
+export async function listBooks(context: APIRequestContext): Promise<BooksResponse>;
+export async function listBooks(context: BookPage): Promise<BooksResponse>;
+export async function listBooks(context: APIRequestContext | BookPage): Promise<BooksResponse> {
+    if (isPage(context)) return context.getBooks();
     return new BaseAPI(context).listBooks();
 }
 

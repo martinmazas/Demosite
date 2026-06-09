@@ -2,8 +2,7 @@ import { faker } from '@faker-js/faker';
 import type { UserData } from './types';
 
 export function uniqueUsername(): string {
-    const username: string = faker.internet.username();
-    return username;
+    return faker.internet.username();
 }
 
 export function uniquePassword(): string {

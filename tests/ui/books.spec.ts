@@ -1,5 +1,6 @@
 import { test, expect } from '@/fixtures';
 import { registerUser, generateToken, deleteUser } from '@/functions/auth';
+import { listBooks } from '@/functions/books';
 import { generateUserData } from '@/functions/testData';
 
 test.describe('Books', () => {
@@ -7,7 +8,7 @@ test.describe('Books', () => {
         'Catalog > Book list displayed in table',
         { annotation: { type: 'id', description: 'TC-BU001' } },
         async ({ booksPage }) => {
-            const { books } = await booksPage.getBooks();
+            const { books } = await listBooks(booksPage);
             expect(books.length).toBeGreaterThan(0);
         }
     );
@@ -49,23 +50,19 @@ test.describe('Books', () => {
             await registerUser(api, credentials);
 
             await loginPage.login(credentials.userName, credentials.password);
-            
+
             try {
-                await loginPage.getByRole('button', { name: 'Go To Book Store', exact: true }).click();
+                await loginPage.addBookToCollection(bookName);
+
+                await loginPage.handleMessage('Book added to your collection.');
                 expect(loginPage.url()).toContain('books');
-                await loginPage.getByRole('link', { name: bookName }).click();
-                
-                loginPage.once('dialog', dialog => {
-                    console.log(`Dialog message: ${dialog.message()}`);
-                    dialog.dismiss().catch(() => { });
-                });
-                
-                await loginPage.getByRole('button', { name: 'Add To Your Collection' }).click();
+
+
                 await loginPage.goto('/profile');
                 await expect(loginPage.getByRole('link', { name: bookName })).toBeVisible();
             } finally {
                 const userId = await loginPage.getUserId();
-                const { token } = await generateToken(api, { userName: credentials.userName, password: credentials.password });
+                const { token } = await generateToken(api, credentials);
                 await deleteUser(api, token, userId);
             }
         }
