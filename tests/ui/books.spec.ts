@@ -1,5 +1,5 @@
 import { test, expect } from '@/fixtures';
-import { registerUser, generateToken, deleteUser } from '@/functions/auth';
+import { registerUser, deleteUser, generateToken } from '@/functions/auth';
 import { listBooks } from '@/functions/books';
 import { generateUserData } from '@/functions/testData';
 

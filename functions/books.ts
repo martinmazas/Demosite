@@ -16,13 +16,13 @@ export async function getBook(api: APIRequestContext, isbn: string): Promise<Boo
 }
 
 export async function addToCollection(api: APIRequestContext, userId: string, isbn: string, token: string): Promise<BooksResponse> {
-    return new BaseAPI(api).addToCollection(userId, isbn, token);
+    return new BaseAPI(api, token).addToCollection(userId, isbn);
 }
 
 export async function removeFromCollection(api: APIRequestContext, userId: string, isbn: string, token: string): Promise<RemoveBookResponse> {
-    return new BaseAPI(api).removeFromCollection(userId, isbn, token);
+    return new BaseAPI(api, token).removeFromCollection(userId, isbn);
 }
 
 export async function clearCollection(api: APIRequestContext, userId: string, token: string): Promise<ApiResponse> {
-    return new BaseAPI(api).clearCollection(userId, token);
+    return new BaseAPI(api, token).clearCollection(userId);
 }

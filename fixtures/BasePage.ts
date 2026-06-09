@@ -48,10 +48,6 @@ export class BasePage {
 
     const token = await this.getCookie('token');
 
-    // const userInfo = await this.page.evaluate(() =>
-    //   JSON.parse(localStorage.getItem('userInfo') || '{}')
-    // );
-
     await this.page.context().setExtraHTTPHeaders({
       Authorization: `Bearer ${token}`,
     });

@@ -1,4 +1,4 @@
-import { APIRequestContext, Page, expect } from '@playwright/test';
+import { APIRequestContext } from '@playwright/test';
 import type {
   Credentials,
   RegisterResponse,
@@ -8,39 +8,40 @@ import type {
   UserData
 } from './types';
 import { BaseAPI } from '../fixtures/BaseAPI';
-import { RegisterPage } from '../pages/RegisterPage';
 import { isPage } from './utils';
+import { BasePage } from '@/fixtures/BasePage';
+import { RegisterPage } from '@/pages/RegisterPage';
 
 export async function registerUser(api: APIRequestContext, userData: Credentials): Promise<RegisterResponse | ApiResponse>;
-export async function registerUser(page: RegisterPage, userData: UserData): Promise<void>;
+export async function registerUser(page: BasePage, userData: UserData): Promise<void>;
 export async function registerUser(
-  context: APIRequestContext | RegisterPage,
+  context: APIRequestContext | BasePage,
   userData: Credentials | UserData
 ): Promise<RegisterResponse | ApiResponse | void> {
   if (!isPage(context)) {
-    return new BaseAPI(context).registerUser(userData as Credentials);
+    return new BaseAPI(context as APIRequestContext).registerUser(userData as Credentials);
   }
 
   const { firstName, lastName, username, password } = userData as UserData;
-  await context.register(firstName, lastName, username, password);
+  await (context as RegisterPage).register(firstName, lastName, username, password);
 }
 
 export async function generateToken(api: APIRequestContext, credentials: Credentials): Promise<LoginResponse> {
   return new BaseAPI(api).generateToken(credentials);
 }
 
-export async function getUserProfile(
+export async function  getUserProfile(
   api: APIRequestContext,
   userID: string,
   token: string
 ): Promise<UserProfileResponse | ApiResponse> {
-  return new BaseAPI(api).getUserProfile(userID, token);
+  return new BaseAPI(api, token).getUserProfile(userID);
 }
 
 export async function deleteUser(
   api: APIRequestContext,
   token: string,
   userId: string
-): Promise<ApiResponse | UserProfileResponse> {
-  return new BaseAPI(api).deleteUser(userId, token);
+): Promise<ApiResponse> {
+  return new BaseAPI(api, token).deleteUser(userId);
 }

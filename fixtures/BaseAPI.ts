@@ -13,14 +13,20 @@ import type {
 export class BaseAPI {
     private readonly request: APIRequestContext;
     protected readonly baseUrl: string;
+    private readonly token: string;
 
     /**
      * @param request - Playwright API request context used for all HTTP calls.
      * Reads `API_BASE_URL` from the environment and normalises the trailing slash.
      */
-    constructor(request: APIRequestContext) {
+    constructor(request: APIRequestContext, token = '') {
         this.request = request;
         this.baseUrl = `${(process.env.API_BASE_URL ?? '').replace(/\/$/, '')}/`;
+        this.token = token;
+    }
+
+    private get authHeader(): Record<string, string> {
+        return this.token ? { Authorization: `Bearer ${this.token}` } : {};
     }
 
     //   /**
@@ -51,7 +57,6 @@ export class BaseAPI {
             headers: { Accept: 'application/json', ...extraHeaders },
             data,
         });
-
         if (!res.ok()) {
             throw new Error(`DELETE ${path} failed: ${res.status()} ${await res.text()}`);
         }
@@ -97,19 +102,12 @@ export class BaseAPI {
         return res.json() as Promise<LoginResponse>;
     }
 
-    async getUserProfile(userId: string, token: string): Promise<UserProfileResponse | ApiResponse> {
-        const res = await this.request.get(`${this.baseUrl}Account/v1/User/${userId}`, {
-            headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
-        });
-        return res.json() as Promise<UserProfileResponse | ApiResponse>;
+    async getUserProfile(userId: string): Promise<UserProfileResponse | ApiResponse> {
+        return this.get<UserProfileResponse>(`Account/v1/User/${userId}`, this.authHeader);
     }
 
-    async deleteUser(userId: string, token: string): Promise<ApiResponse | UserProfileResponse> {
-        const res = await this.request.delete(`${this.baseUrl}Account/v1/User/${userId}`, {
-            headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
-        });
-        const text = await res.text();
-        return (text ? JSON.parse(text) : {}) as ApiResponse | UserProfileResponse;
+    async deleteUser(userId: string): Promise<ApiResponse> {
+        return this.delete<ApiResponse>(`Account/v1/User/${userId}`, this.authHeader);
     }
 
     async listBooks(): Promise<BooksResponse> {
@@ -120,27 +118,15 @@ export class BaseAPI {
         return this.get<Book>(`BookStore/v1/Book?ISBN=${isbn}`);
     }
 
-    async clearCollection(userId: string, token: string): Promise<ApiResponse> {
-        return this.delete<ApiResponse>(
-            `BookStore/v1/Books?UserId=${userId}`,
-            { Authorization: `Bearer ${token}` },
-            undefined,
-        );
+    async clearCollection(userId: string): Promise<ApiResponse> {
+        return this.delete<ApiResponse>(`BookStore/v1/Books?UserId=${userId}`, this.authHeader);
     }
 
-    async addToCollection(userId: string, isbn: string, token: string): Promise<BooksResponse> {
-        return this.post<BooksResponse>(
-            'BookStore/v1/Books',
-            { userId, collectionOfIsbns: [{ isbn }] },
-            { Authorization: `Bearer ${token}` },
-        );
+    async addToCollection(userId: string, isbn: string): Promise<BooksResponse> {
+        return this.post<BooksResponse>('BookStore/v1/Books', { userId, collectionOfIsbns: [{ isbn }] }, this.authHeader);
     }
 
-    async removeFromCollection(userId: string, isbn: string, token: string): Promise<RemoveBookResponse> {
-        return this.delete<RemoveBookResponse>(
-            'BookStore/v1/Book',
-            { Authorization: `Bearer ${token}` },
-            { isbn, userId },
-        );
+    async removeFromCollection(userId: string, isbn: string): Promise<RemoveBookResponse> {
+        return this.delete<RemoveBookResponse>('BookStore/v1/Book', this.authHeader, { isbn, userId });
     }
 }

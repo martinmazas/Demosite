@@ -2,12 +2,14 @@ import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { BookPage } from '@/pages/BookPage';
 import { test as base, APIRequestContext } from '@playwright/test';
+import { BasePage } from './BasePage';
 
 type MyFixtures = {
     loginPage: LoginPage;
     registerPage: RegisterPage;
     api: APIRequestContext;
     booksPage: BookPage;
+    customPage: BasePage;
 }
 
 export const test = base.extend<MyFixtures>({
@@ -22,6 +24,9 @@ export const test = base.extend<MyFixtures>({
     },
     booksPage: async ({ page }, use) => {
         await use(new BookPage(page));
+    },
+    customPage: async ({ page }, use) => {
+        await use(new BasePage(page));
     }
 })
 

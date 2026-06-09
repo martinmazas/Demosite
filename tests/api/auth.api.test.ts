@@ -10,13 +10,13 @@ test.describe('Auth', () => {
         async ({ api }) => {
             const { username, password } = generateUserData();
             const response = await registerUser(api, { userName: username, password }) as RegisterResponse;
-            const { token } = await generateToken(api, { userName: username, password });
 
             try {
                 expect(response.userID).toBeTruthy();
                 expect(response.username).toBe(username);
                 expect(response.books).toHaveLength(0);
             } finally {
+                const { token } = await generateToken(api, { userName: username, password });
                 await deleteUser(api, token, response.userID);
             }
         }
@@ -49,7 +49,8 @@ test.describe('Auth', () => {
                 expect(response.token).toBeTruthy();
                 expect(response.expires).toBeTruthy();
             } finally {
-                await deleteUser(api, response.token, userID);
+                const { token } = await generateToken(api, { userName: username, password });
+                await deleteUser(api, token, userID);
             }
         }
     );
@@ -71,13 +72,14 @@ test.describe('Auth', () => {
         async ({ api }) => {
             const { username, password } = generateUserData();
             const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
-            const { token } = await generateToken(api, { userName: username, password });
 
             try {
+                const { token } = await generateToken(api, { userName: username, password });
                 const profile = await getUserProfile(api, userID, token) as UserProfileResponse;
                 expect(profile.userId).toBe(userID);
                 expect(profile.username).toBe(username);
             } finally {
+                const { token } = await generateToken(api, { userName: username, password });
                 await deleteUser(api, token, userID);
             }
         }
@@ -90,7 +92,6 @@ test.describe('Auth', () => {
             const { username, password } = generateUserData();
             const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
             const { token } = await generateToken(api, { userName: username, password });
-
             await deleteUser(api, token, userID);
 
             const result = await getUserProfile(api, userID, token) as ApiResponse;

@@ -1,5 +1,5 @@
 import { expect, test } from '@/fixtures';
-import { registerUser } from '@/functions/auth';
+import { deleteUser, generateToken, registerUser } from '@/functions/auth';
 import { generateUserData } from '@/functions/testData';
 import { RegisterResponse } from '@/functions/types';
 
@@ -15,15 +15,9 @@ test.describe('Login', () => {
                 await loginPage.login(username, password);
                 await expect(loginPage.getByRole('button', { name: 'Logout' })).toBeVisible();
                 expect(loginPage.url()).toContain("profile");
-
             } finally {
-                const tokenRes = await api.post('/Account/v1/GenerateToken', {
-                    data: { userName: username, password },
-                });
-                const { token } = await tokenRes.json();
-                await api.delete(`/Account/v1/User/${registration.userID}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const { token } = await generateToken(api, { userName: username, password });
+                await deleteUser(api, token, registration.userID);
             }
         }
     );

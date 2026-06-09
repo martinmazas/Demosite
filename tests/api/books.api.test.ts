@@ -37,8 +37,8 @@ test.describe('Books', () => {
 
     test(
         'Catalog > Wrong ISBN shows error',
-        {annotation: {type: 'id', description: 'TC-B006'}},
-        async({api}) => {
+        { annotation: { type: 'id', description: 'TC-B006' } },
+        async ({ api }) => {
             const isbn = '9781449325865';
             const response = await getBook(api, isbn) as ApiResponse;
             expect(response.code).toBe("1205");
@@ -80,6 +80,7 @@ test.describe('Books', () => {
                 const profile = await getUserProfile(api, userID, token) as UserProfileResponse;
                 expect(profile.books.some(b => b.isbn === isbn)).toBe(false);
             } finally {
+                // const { token } = await generateToken(api, { userName: username, password });
                 await deleteUser(api, token, userID);
             }
         }
