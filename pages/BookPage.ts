@@ -1,6 +1,11 @@
 import { BasePage } from '../fixtures/BasePage';
 import { Book, BooksResponse } from '../functions/types';
 
+export const BOOK = {
+    name: 'Speaking JavaScript',
+    isbn: '9781449365035',
+};
+
 export class BookPage extends BasePage {
     /**
      * Scrapes all rows from the visible book table. Column order is fixed:
