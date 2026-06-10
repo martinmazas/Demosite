@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "agent",
+            "if": "Bash(gh pr create*)",
+            "prompt": "A pull request was just created. Your job is to check whether README.md needs updating based on what changed in this PR.\n\n1. Read the file README.md\n2. Run: git diff main...HEAD -- fixtures/ functions/ pages/ tests/ playwright.config.ts package.json\n3. Compare the diff against README.md and identify anything stale or missing. Check for:\n   - New, renamed, or deleted test files (update the Project Structure and Test Coverage sections)\n   - New test IDs or test descriptions (update the Test Coverage tables)\n   - Changed npm scripts in package.json (update the Running Tests section)\n   - New or removed environment variables (update the Environment Variables table)\n   - New pages, fixtures, or function files (update the Project Structure section)\n   - Architectural changes (update the Architecture section)\n4. If the README is already accurate, say so explicitly. If updates are needed, report the exact section(s) and the precise text that should replace the current content.",
+            "statusMessage": "Checking README against PR changes...",
+            "timeout": 90
+          }
+        ]
+      }
+    ]
+  }
+}
