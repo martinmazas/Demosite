@@ -52,11 +52,12 @@ test.describe('Books', () => {
             await loginPage.login(credentials.userName, credentials.password);
 
             try {
+                const dialogPromise = loginPage.captureNextDialog();
                 await loginPage.addBookToCollection(bookName);
 
-                await loginPage.handleMessage('Book added to your collection.');
+                const dialogMessage = await dialogPromise;
+                expect(dialogMessage).toBe('Book added to your collection.');
                 expect(loginPage.url()).toContain('books');
-
 
                 await loginPage.goto('/profile');
                 await expect(loginPage.getByRole('link', { name: bookName })).toBeVisible();

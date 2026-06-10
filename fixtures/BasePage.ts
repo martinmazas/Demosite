@@ -57,6 +57,16 @@ export class BasePage {
     return api;
   }
 
+  captureNextDialog(): Promise<string> {
+    return new Promise<string>(resolve => {
+      this.page.once('dialog', async dialog => {
+        const message = dialog.message();
+        await dialog.accept();
+        resolve(message);
+      });
+    });
+  }
+
   /** Reads the current user's ID from `localStorage.userInfo`. */
   async getUserId(): Promise<string> {
     return await this.getCookie('userID');
