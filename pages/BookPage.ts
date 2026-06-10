@@ -2,6 +2,11 @@ import { BasePage } from '../fixtures/BasePage';
 import { Book, BooksResponse } from '../functions/types';
 
 export class BookPage extends BasePage {
+    /**
+     * Scrapes all rows from the visible book table. Column order is fixed:
+     * image(0), title(1), author(2), publisher(3). Fields absent from the
+     * table (isbn, subTitle, etc.) are left as empty-string/zero defaults.
+     */
     private async readTableRows(): Promise<Book[]> {
         const rows = this.page.locator('table tbody tr');
         await rows.first().waitFor();

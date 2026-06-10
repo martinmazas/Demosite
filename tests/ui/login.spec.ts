@@ -1,22 +1,22 @@
 import { expect, test } from '@/fixtures';
 import { deleteUser, generateToken, registerUser } from '@/functions/auth';
-import { generateUserData } from '@/functions/testData';
 import { RegisterResponse } from '@/functions/types';
+import { createCredentials } from '@/functions/utils';
 
 test.describe('Login', () => {
     test(
         'Valid credentials > Profile page is shown',
         { annotation: { type: 'id', description: 'TC-L001' } },
         async ({ loginPage, api }) => {
-            const { username, password } = generateUserData();
-            const registration = await registerUser(api, { userName: username, password }) as RegisterResponse;
+            const { credentials } = createCredentials();
+            const registration = await registerUser(api, credentials) as RegisterResponse;
 
             try {
-                await loginPage.login(username, password);
+                await loginPage.login(credentials.userName, credentials.password);
                 await expect(loginPage.getByRole('button', { name: 'Logout' })).toBeVisible();
                 expect(loginPage.url()).toContain("profile");
             } finally {
-                const { token } = await generateToken(api, { userName: username, password });
+                const { token } = await generateToken(api, credentials);
                 await deleteUser(api, token, registration.userID);
             }
         }

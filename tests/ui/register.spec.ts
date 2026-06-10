@@ -19,10 +19,7 @@ test.describe('Registration', () => {
             try {
                 const user = await getUserProfile(api, userId, token);
                 console.log('user', user);
-                // await loginPage.login(username, password);
-                // await expect(loginPage.getByRole('button', { name: 'Logout' })).toBeVisible();
             } finally {
-                // const userID = await loginPage.getUserId();
                 await deleteUser(api, token, userId);
             }
         }

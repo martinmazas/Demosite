@@ -29,12 +29,11 @@ export class BaseAPI {
         return this.token ? { Authorization: `Bearer ${this.token}` } : {};
     }
 
-    //   /**
-    //    * Sends a GET request and deserialises the JSON body as `T`.
-    //    * @param path - Path appended to `baseUrl` (no leading slash).
-    //    * @param extraHeaders - Optional headers merged on top of the default `Accept` header.
-    //    * @throws {Error} When the response status is not 2xx.
-    //    */
+    /**
+     * Sends a GET request and deserialises the JSON body as `T`.
+     * @param path - Path appended to `baseUrl` (no leading slash).
+     * @param extraHeaders - Optional headers merged on top of the default `Accept` header.
+     */
     protected async get<T>(path: string, extraHeaders?: Record<string, string>): Promise<T> {
         const res = await this.request.get(`${this.baseUrl}${path}`, {
             headers: { Accept: 'application/json', ...extraHeaders },
@@ -42,16 +41,15 @@ export class BaseAPI {
         return res.json() as Promise<T>;
     }
 
-    //   /**
-    //    * Sends a DELETE request and deserialises the response body as `T`.
-    //    * Unlike `get`, the success check is an exact status match so callers can
-    //    * expect 204 No Content responses (which have an empty body).
-    //    * @param path - Path appended to `baseUrl`.
-    //    * @param extraHeaders - Optional additional headers.
-    //    * @param data - Optional request body (e.g. when the API requires a body on DELETE).
-    //    * @param expectedStatus - HTTP status code that is considered success (default 200).
-    //    * @throws {Error} When the response status does not match `expectedStatus`.
-    //    */
+    /**
+     * Sends a DELETE request and deserialises the response body as `T`.
+     * Unlike `get`, uses an explicit ok() check so callers receive a typed
+     * result even for 204 No Content responses (which return an empty object).
+     * @param path - Path appended to `baseUrl`.
+     * @param extraHeaders - Optional additional headers.
+     * @param data - Optional request body (required by some DELETE endpoints).
+     * @throws {Error} When the response status is not ok.
+     */
     protected async delete<T>(path: string, extraHeaders?: Record<string, string>, data?: unknown): Promise<T> {
         const res = await this.request.delete(`${this.baseUrl}${path}`, {
             headers: { Accept: 'application/json', ...extraHeaders },
@@ -64,13 +62,13 @@ export class BaseAPI {
         return (text ? JSON.parse(text) : {}) as T;
     }
 
-    //   /**
-    //    * Sends a POST request with a JSON body and deserialises the response as `T`.
-    //    * @param path - Path appended to `baseUrl`.
-    //    * @param data - Optional request body serialised as JSON.
-    //    * @param extraHeaders - Optional headers merged on top of the defaults.
-    //    * @throws {Error} When the response status is not 2xx.
-    //    */
+    /**
+     * Sends a POST request with a JSON body and deserialises the response as `T`.
+     * @param path - Path appended to `baseUrl`.
+     * @param data - Optional request body serialised as JSON.
+     * @param extraHeaders - Optional headers merged on top of the defaults.
+     * @throws {Error} When the response status is not ok.
+     */
     protected async post<T>(path: string, data?: unknown, extraHeaders?: Record<string, string>): Promise<T> {
         const res = await this.request.post(`${this.baseUrl}${path}`, {
             headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...extraHeaders },
@@ -82,6 +80,11 @@ export class BaseAPI {
         return res.json() as Promise<T>;
     }
 
+    /**
+     * Returns `RegisterResponse` on 201 Created, or `ApiResponse` for all other
+     * statuses (e.g. 400 when the user already exists). Unlike `post`, this
+     * method must not throw on non-2xx so callers can assert on error codes.
+     */
     async registerUser(userData: Credentials): Promise<RegisterResponse | ApiResponse> {
         const res = await this.request.post(`${this.baseUrl}Account/v1/User`, {
             headers: { Accept: 'application/json', 'Content-Type': 'application/json' },

@@ -5,6 +5,10 @@ export function uniqueUsername(): string {
     return faker.internet.username();
 }
 
+/**
+ * Builds a password that satisfies the site's complexity rules: at least one
+ * lowercase letter, one uppercase letter, one digit, and one special character.
+ */
 export function uniquePassword(): string {
     const password: string = faker.internet.password({ length: 4, memorable: false, pattern: /[a-z]/ })
         + faker.string.fromCharacters('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 1)

@@ -1,8 +1,8 @@
 import { test, expect } from '@/fixtures/index';
 import { registerUser, generateToken, getUserProfile, deleteUser } from '@/functions/auth';
 import { listBooks, getBook, addToCollection, removeFromCollection, clearCollection } from '@/functions/books';
-import { generateUserData } from '@/functions/testData';
 import { ApiResponse, Book, RegisterResponse, UserProfileResponse } from '@/functions/types';
+import { createCredentials } from '@/functions/utils';
 
 test.describe('Books', () => {
     test(
@@ -51,9 +51,9 @@ test.describe('Books', () => {
         { annotation: { type: 'id', description: 'TC-B003' } },
         async ({ api }) => {
             const isbn = '9781449331818';
-            const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
-            const { token } = await generateToken(api, { userName: username, password });
+            const { credentials } = createCredentials();
+            const { userID } = await registerUser(api, credentials) as RegisterResponse;
+            const { token } = await generateToken(api, credentials);
 
             try {
                 const response = await addToCollection(api, userID, isbn, token);
@@ -70,9 +70,9 @@ test.describe('Books', () => {
         { annotation: { type: 'id', description: 'TC-B004' } },
         async ({ api }) => {
             const isbn = '9781449331818';
-            const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
-            const { token } = await generateToken(api, { userName: username, password });
+            const { credentials } = createCredentials();
+            const { userID } = await registerUser(api, credentials) as RegisterResponse;
+            const { token } = await generateToken(api, credentials);
 
             try {
                 await addToCollection(api, userID, isbn, token);
@@ -80,7 +80,6 @@ test.describe('Books', () => {
                 const profile = await getUserProfile(api, userID, token) as UserProfileResponse;
                 expect(profile.books.some(b => b.isbn === isbn)).toBe(false);
             } finally {
-                // const { token } = await generateToken(api, { userName: username, password });
                 await deleteUser(api, token, userID);
             }
         }
@@ -91,9 +90,9 @@ test.describe('Books', () => {
         { annotation: { type: 'id', description: 'TC-B005' } },
         async ({ api }) => {
             const isbn = '9781449331818';
-            const { username, password } = generateUserData();
-            const { userID } = await registerUser(api, { userName: username, password }) as RegisterResponse;
-            const { token } = await generateToken(api, { userName: username, password });
+            const { credentials } = createCredentials();
+            const { userID } = await registerUser(api, credentials) as RegisterResponse;
+            const { token } = await generateToken(api, credentials);
 
             try {
                 await addToCollection(api, userID, isbn, token);

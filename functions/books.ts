@@ -4,6 +4,10 @@ import { BaseAPI } from '@/fixtures/BaseAPI';
 import { BookPage } from '@/pages/BookPage';
 import { isPage } from './utils';
 
+/**
+ * Overloaded: resolves books from the REST API when given `APIRequestContext`,
+ * or by navigating to `/books` and scraping the rendered table when given a `BookPage`.
+ */
 export async function listBooks(context: APIRequestContext): Promise<BooksResponse>;
 export async function listBooks(context: BookPage): Promise<BooksResponse>;
 export async function listBooks(context: APIRequestContext | BookPage): Promise<BooksResponse> {

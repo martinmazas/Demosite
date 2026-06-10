@@ -12,6 +12,11 @@ import { isPage } from './utils';
 import { BasePage } from '@/fixtures/BasePage';
 import { RegisterPage } from '@/pages/RegisterPage';
 
+/**
+ * Overloaded: when given an `APIRequestContext` it POSTs to the REST API and
+ * returns the registration result; when given a `BasePage` it drives the
+ * registration form in the browser and returns nothing.
+ */
 export async function registerUser(api: APIRequestContext, userData: Credentials): Promise<RegisterResponse | ApiResponse>;
 export async function registerUser(page: BasePage, userData: UserData): Promise<void>;
 export async function registerUser(
