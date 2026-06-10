@@ -19,10 +19,4 @@ export class LoginPage extends BasePage {
             await dialog.accept();
         });
     }
-
-    async addBookToCollection(bookName: string): Promise<void> {
-        await this.page.getByRole('button', { name: 'Go To Book Store', exact: true }).click();
-        await this.page.getByRole('link', { name: bookName }).click();
-        await this.page.getByRole('button', { name: 'Add To Your Collection' }).click();
-    }
 }

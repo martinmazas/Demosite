@@ -35,7 +35,7 @@ export async function generateToken(api: APIRequestContext, credentials: Credent
   return new BaseAPI(api).generateToken(credentials);
 }
 
-export async function  getUserProfile(
+export async function getUserProfile(
   api: APIRequestContext,
   userID: string,
   token: string

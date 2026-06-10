@@ -48,9 +48,15 @@ export class BookPage extends BasePage {
 
     async searchBooks(query: string): Promise<BooksResponse> {
         await this.goto('/books');
-        const searchBox = this.getByRole('textbox', {name: 'Type to search'});
+        const searchBox = this.getByRole('textbox', { name: 'Type to search' });
         await searchBox.fill(query);
         await searchBox.press('Enter');
         return { books: await this.readTableRows() };
+    }
+
+    async addBookToCollection(bookName: string): Promise<void> {
+        await this.page.getByRole('button', { name: 'Go To Book Store', exact: true }).click();
+        await this.page.getByRole('link', { name: bookName }).click();
+        await this.page.getByRole('button', { name: 'Add To Your Collection' }).click();
     }
 }

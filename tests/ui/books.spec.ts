@@ -37,25 +37,24 @@ test.describe('Books', () => {
     test(
         'Collection > Add book and verify in profile',
         { annotation: { type: 'id', description: 'COLL-001' } },
-        async ({ loginPage, api }) => {
+        async ({ api, booksPage, loginPage }) => {
             const { credentials } = createCredentials();
 
             await registerUser(api, credentials);
-
             await loginPage.login(credentials.userName, credentials.password);
 
             try {
-                const dialogPromise = loginPage.captureNextDialog();
-                await loginPage.addBookToCollection(BOOK.name);
+                const dialogPromise = booksPage.captureNextDialog();
+                await booksPage.addBookToCollection(BOOK.name);
 
                 const dialogMessage = await dialogPromise;
                 expect(dialogMessage).toBe('Book added to your collection.');
-                expect(loginPage.url()).toContain('books');
+                expect(booksPage.url()).toContain('books');
 
-                await loginPage.goto('/profile');
-                await expect(loginPage.getByRole('link', { name: BOOK.name })).toBeVisible();
+                await booksPage.goto('/profile');
+                await expect(booksPage.getByRole('link', { name: BOOK.name })).toBeVisible();
             } finally {
-                const userId = await loginPage.getUserId();
+                const userId = await booksPage.getUserId();
                 const { token } = await generateToken(api, credentials);
                 await deleteUser(api, token, userId);
             }
