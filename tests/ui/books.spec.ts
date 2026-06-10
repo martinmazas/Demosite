@@ -2,13 +2,9 @@ import { test, expect } from '@/fixtures';
 import { registerUser, deleteUser, generateToken } from '@/functions/auth';
 import { listBooks } from '@/functions/books';
 import { createCredentials } from '@/functions/utils';
+import { BOOK } from '@/pages/BookPage';
 
 test.describe('Books', () => {
-    const book: { name: string, isbn: string } = {
-        name: 'Speaking JavaScript',
-        isbn: '9781449365035'
-    }
-
     test(
         'Catalog > Book list displayed in table',
         { annotation: { type: 'id', description: 'TC-BU001' } },
@@ -22,46 +18,42 @@ test.describe('Books', () => {
         'Catalog > Search for a book',
         { annotation: { type: 'id', description: 'TC-BU002' } },
         async ({ booksPage }) => {
-            const bookName = book.name;
-            const { books } = await booksPage.searchBooks(bookName);
+            const { books } = await booksPage.searchBooks(BOOK.name);
             expect(books.length).toBeGreaterThan(0);
-            expect(books[0].title).toBe(bookName);
+            expect(books[0].title).toBe(BOOK.name);
         }
-    )
+    );
 
     test(
         'Choose a book > Detail view',
         { annotation: { type: 'id', description: 'TC-BU003' } },
         async ({ booksPage }) => {
-            const isbn = book.isbn;
-            const bookName = book.name;
             await booksPage.goto('/books');
-            await booksPage.getByRole('link', { name: bookName }).click();
-            expect(booksPage.url()).toContain(isbn);
+            await booksPage.getByRole('link', { name: BOOK.name }).click();
+            expect(booksPage.url()).toContain(BOOK.isbn);
         }
     )
 
     test(
         'Collection > Add book and verify in profile',
-        { annotation: { type: 'ID', description: 'COLL-001' } },
+        { annotation: { type: 'id', description: 'COLL-001' } },
         async ({ loginPage, api }) => {
             const { credentials } = createCredentials();
 
-            const bookName = book.name;
             await registerUser(api, credentials);
 
             await loginPage.login(credentials.userName, credentials.password);
 
             try {
                 const dialogPromise = loginPage.captureNextDialog();
-                await loginPage.addBookToCollection(bookName);
+                await loginPage.addBookToCollection(BOOK.name);
 
                 const dialogMessage = await dialogPromise;
                 expect(dialogMessage).toBe('Book added to your collection.');
                 expect(loginPage.url()).toContain('books');
 
                 await loginPage.goto('/profile');
-                await expect(loginPage.getByRole('link', { name: bookName })).toBeVisible();
+                await expect(loginPage.getByRole('link', { name: BOOK.name })).toBeVisible();
             } finally {
                 const userId = await loginPage.getUserId();
                 const { token } = await generateToken(api, credentials);
