@@ -1,9 +1,4 @@
 import { APIRequestContext, Page } from '@playwright/test';
-export interface UserData {
-  userId: string;
-  username: string;
-  books: Array<{ isbn: string }>;
-}
 
 export class BasePage {
   public page: Page;
@@ -70,17 +65,6 @@ export class BasePage {
   /** Reads the current user's ID from `localStorage.userInfo`. */
   async getUserId(): Promise<string> {
     return await this.getCookie('userID');
-  }
-
-  /**
-   * Fetches the full profile of the currently logged-in user from the API.
-   * Combines `getAPI()` and `getUserId()` then hits the Account endpoint.
-   */
-  async getUserData(): Promise<UserData> {
-    const api = await this.getAPI();
-    const userId = await this.getUserId();
-    const response = await api.get(`/Account/v1/User/${userId}`);
-    return response.json() as Promise<UserData>;
   }
 }
 
