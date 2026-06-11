@@ -106,7 +106,7 @@ export class BaseAPI {
     }
 
     async getUserProfile(userId: string): Promise<UserProfileResponse | ApiResponse> {
-        return this.get<UserProfileResponse>(`Account/v1/User/${userId}`, this.authHeader);
+        return this.get<UserProfileResponse | ApiResponse>(`Account/v1/User/${userId}`, this.authHeader);
     }
 
     async deleteUser(userId: string): Promise<ApiResponse> {
