@@ -10,11 +10,9 @@ test.describe('Profile', () => {
             const username: string = process.env.TEST_USERNAME!;
             const password: string = process.env.TEST_PASSWORD!;
             const credentials: Credentials = { userName: username, password };
+
             await loginPage.login(credentials.userName, credentials.password);
-
-            await expect(loginPage.getByText('User Name')).toBeVisible();
-            await expect(loginPage.getByText(username)).toBeVisible();
-
+            await loginPage.verifySuccessfulLogin(username);
 
             const userId = await loginPage.getUserId();
             const { token } = await generateToken(api, credentials);

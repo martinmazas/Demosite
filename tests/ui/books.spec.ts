@@ -44,15 +44,8 @@ test.describe('Books', () => {
             await loginPage.login(credentials.userName, credentials.password);
 
             try {
-                const dialogPromise = booksPage.captureNextDialog();
                 await booksPage.addBookToCollection(BOOK.name);
-
-                const dialogMessage = await dialogPromise;
-                expect(dialogMessage).toBe('Book added to your collection.');
-                expect(booksPage.url()).toContain('books');
-
-                await booksPage.goto('/profile');
-                await expect(booksPage.getByRole('link', { name: BOOK.name })).toBeVisible();
+                await booksPage.verifyBookAddedSuccessfully();
             } finally {
                 const userId = await booksPage.getUserId();
                 const { token } = await generateToken(api, credentials);

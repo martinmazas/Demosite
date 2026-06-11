@@ -8,5 +8,8 @@ module.exports = [
     languageOptions: {
       parser: tsParser,
     },
+    rules: {
+      'playwright/expect-expect': ['warn', { assertFunctionNames: ['expect', /^verify/] }],
+    },
   },
 ];

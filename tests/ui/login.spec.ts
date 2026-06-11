@@ -13,8 +13,7 @@ test.describe('Login', () => {
 
             try {
                 await loginPage.login(credentials.userName, credentials.password);
-                await expect(loginPage.getByRole('button', { name: 'Logout' })).toBeVisible();
-                expect(loginPage.url()).toContain("profile");
+                await loginPage.verifySuccessfulLogin(credentials.userName);
             } finally {
                 const { token } = await generateToken(api, credentials);
                 await deleteUser(api, token, registration.userID);
