@@ -1,5 +1,5 @@
 import { APIRequestContext } from '@playwright/test';
-import type { BooksResponse, Book, RemoveBookResponse, ApiResponse } from './types';
+import type { BooksResponse, Book, RemoveBookResponse, ApiResponse, BookCollection } from './types';
 import { BaseAPI } from '@/fixtures/BaseAPI';
 import { BookPage } from '@/pages/BookPage';
 import { isPage } from './utils';
@@ -19,8 +19,15 @@ export async function getBook(api: APIRequestContext, isbn: string): Promise<Boo
     return new BaseAPI(api).getBook(isbn);
 }
 
-export async function addToCollection(api: APIRequestContext, userId: string, isbn: string, token: string): Promise<BooksResponse> {
-    return new BaseAPI(api, token).addToCollection(userId, isbn);
+export async function addToCollection(context: BookPage, name: string): Promise<void>;
+export async function addToCollection(context: APIRequestContext, bookCollection: BookCollection): Promise<BooksResponse>;
+export async function addToCollection(context: APIRequestContext | BookPage, data: BookCollection | string): Promise<BooksResponse | void> {
+    if (!isPage(context)) {
+        const { token, userId, isbn } = data as BookCollection;
+        return new BaseAPI(context, token).addToCollection(userId, isbn);
+    }
+
+    return context.addBookToCollection(data as string);
 }
 
 export async function removeFromCollection(api: APIRequestContext, userId: string, isbn: string, token: string): Promise<RemoveBookResponse> {

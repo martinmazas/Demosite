@@ -1,5 +1,6 @@
-import { expect, test } from '@/fixtures';
+import { test } from '@/fixtures';
 import { deleteUser, generateToken, registerUser } from '@/functions/auth';
+import { addToCollection } from '@/functions/books';
 import { createCredentials } from '@/functions/utils';
 import { BOOK } from '@/pages/BookPage';
 
@@ -17,11 +18,15 @@ test.describe('E2E flow', () => {
                 await loginPage.verifySuccessfulLogin(credentials.userName);
 
                 // Add a Book and verify
-                await booksPage.addBookToCollection(BOOK.name);
+                // await booksPage.addBookToCollection(BOOK.name);
+                await addToCollection(booksPage, BOOK.name);
                 await booksPage.verifyBookAddedSuccessfully();
 
-                // Remove Book and verify
+                // Remove Book
                 await booksPage.deleteBook(BOOK.isbn);
+
+                // Verify book was deleted
+
             } finally {
                 const { token } = await generateToken(api, credentials);
                 const userId = await booksPage.getUserId();

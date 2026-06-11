@@ -56,7 +56,7 @@ test.describe('Books', () => {
             const { token } = await generateToken(api, credentials);
 
             try {
-                const response = await addToCollection(api, userID, isbn, token);
+                const response = await addToCollection(api, { userId: userID, isbn, token });
                 expect(response.books).toBeDefined();
                 expect(response.books.some(b => b.isbn === isbn)).toBe(true);
             } finally {
@@ -75,7 +75,7 @@ test.describe('Books', () => {
             const { token } = await generateToken(api, credentials);
 
             try {
-                await addToCollection(api, userID, isbn, token);
+                await addToCollection(api, { userId: userID, isbn, token });
                 await removeFromCollection(api, userID, isbn, token);
                 const profile = await getUserProfile(api, userID, token) as UserProfileResponse;
                 expect(profile.books.some(b => b.isbn === isbn)).toBe(false);
@@ -95,7 +95,7 @@ test.describe('Books', () => {
             const { token } = await generateToken(api, credentials);
 
             try {
-                await addToCollection(api, userID, isbn, token);
+                await addToCollection(api, { userId: userID, isbn, token });
                 await clearCollection(api, userID, token);
                 const profile = await getUserProfile(api, userID, token) as UserProfileResponse;
                 expect(profile.books).toHaveLength(0);
